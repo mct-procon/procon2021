@@ -1,6 +1,6 @@
 //回答データ
 using namespace std;
-typedef struct answer {
+typedef struct status {
 	string spin_info;  //回転情報
 	int sel_cnt = 0;  //選択回数(ライン数)
 	vector<int> sel_place;  //選択画像位置
@@ -62,4 +62,4 @@ typedef struct answer {
 		printf("総コスト  : %d\n", total_cost);
 		printf("選択コスト: %d\n", sellect_cost);
 	}
-} answer;
+} status;

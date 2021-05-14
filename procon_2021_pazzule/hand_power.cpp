@@ -1,11 +1,11 @@
 #include <iostream>
 #include <vector>
 #include <conio.h>
-#include "answer.h"
+#include "status.h"
 using namespace std;
 extern vector<vector<int> > complete;
 extern int px, py, h, w, move_style, sel_or_swap, sel_rate, swap_rate, sel_lim;
-extern answer clear_ans;
+extern status answer;
 //‰æ‘œ‚Ì“ü‚ê‘Ö‚¦ˆ—
 void move(vector<vector<int> > *table, int dx, int dy) {
 	if (px + dx < 0 || px + dx >= (*table)[0].size() || py + dy < 0 || py + dy >= (*table).size()) return;
@@ -33,7 +33,7 @@ void show(vector<vector<int> > *table) {
 
 
 //è“®‚ÌƒpƒYƒ‹
-void hand_puzzle(vector<vector<int> >* table, answer* ans) {
+void hand_puzzle(vector<vector<int> >* table, status* ans) {
 	if (_kbhit()) {
 		int pre_x = px, pre_y = py;
 		int d[2][4] = {
@@ -71,10 +71,10 @@ void hand_puzzle(vector<vector<int> >* table, answer* ans) {
 }
 
 //l—Í‘€ì‚Ìˆ—‚Ì—¬‚ê
-void hand_solve(vector<vector<int> > *table, answer* ans) {
+void hand_solve(vector<vector<int> > *table, status* ans) {
 	while (1) {
 		if (*table == complete) {
-			clear_ans = *ans;
+			answer = *ans;
 			break;
 		}
 		show(table);

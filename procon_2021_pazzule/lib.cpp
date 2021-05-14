@@ -1,19 +1,19 @@
 #include <iostream>
 #include <vector>
-#include "answer.h"
+#include "status.h"
 using namespace std;
 
-extern answer clear_ans;
+extern status answer;
 extern int h, w;
 
 void show_table(vector<vector<int> > table) {
 
-	for (int s = 0; s < clear_ans.sel_cnt; s++) {
-		int sel_place = clear_ans.sel_place[s];
+	for (int s = 0; s < answer.sel_cnt; s++) {
+		int sel_place = answer.sel_place[s];
 		cout << "‘I‘ðˆÊ’u: " << sel_place << endl;
-		for (int t = 0; t < clear_ans.swap_cnt[s]; t++) {
-			cout << "ˆÚ“®•ûŒü: " << clear_ans.swap_operator[s][t] << endl;
-			switch (clear_ans.swap_operator[s][t])
+		for (int t = 0; t < answer.swap_cnt[s]; t++) {
+			cout << "ˆÚ“®•ûŒü: " << answer.swap_operator[s][t] << endl;
+			switch (answer.swap_operator[s][t])
 			{
 			case 'U':
 				swap(table[sel_place / w][sel_place % w], table[sel_place / w - 1][sel_place % w]);

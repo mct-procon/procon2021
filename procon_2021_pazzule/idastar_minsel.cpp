@@ -1,16 +1,16 @@
 #include <iostream>
 #include <vector>
-#include "answer.h"
+#include "status.h"
 using namespace std;
 
 extern vector<vector<int> > complete;
 extern int h, w, sel_lim, sel_rate, swap_rate;
-extern answer clear_ans;
+extern status answer;
 
 //IDA*‚É‚æ‚é‰æ‘œ•œŒ³’Tõ
-int idastar_minsel(int depth, int count, int sel_lim, vector<vector<int> > table, answer ans, int px, int py) {
+int idastar_minsel(int depth, int count, int sel_lim, vector<vector<int> > table, status ans, int px, int py) {
 	if (table == complete) {
-		clear_ans = ans;
+		answer = ans;
 		return 1;
 	}
 	if (depth == 0) return 0;
@@ -21,7 +21,7 @@ int idastar_minsel(int depth, int count, int sel_lim, vector<vector<int> > table
 	};
 
 	vector<vector<int> > backup_table = table;
-	answer backup_ans = ans;
+	status backup_ans = ans;
 	int clear = 0;
 	for (int i = 0; i < h; i++) {
 		for (int j = 0; j < w; j++) {
@@ -54,12 +54,12 @@ int idastar_minsel(int depth, int count, int sel_lim, vector<vector<int> > table
 	return clear;
 }
 
-void idastar_ms_solve(vector<vector<int> > *table, answer *ans) {
+void idastar_ms_solve(vector<vector<int> > *table, status *ans) {
 	int clear = 0;
 	for (int depth = 0; !clear; depth++) {
 		clear = idastar_minsel(depth, 0, sel_lim, *table, *ans, -1, -1);
 		printf("%d\n", depth);
 	}
-	clear_ans.show();
-	clear_ans.show_cost();
+	answer.show();
+	answer.show_cost();
 }

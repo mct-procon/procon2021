@@ -7,7 +7,7 @@
 #include <vector>
 #include <string>
 #include <conio.h>
-#include "answer.h"
+#include "status.h"
 #include "lib.h"
 #include "hand_power.h"
 #include "idastar.h"
@@ -19,10 +19,10 @@ using namespace std;
 
 vector<vector<int> > complete;
 int px, py, h, w, move_style, sel_or_swap = 0, sel_rate, swap_rate, sel_lim;
-answer clear_ans;
+status answer;
 int main() {
 	vector<vector<int> > table;
-    answer ans;
+    status ans;
 	cout << "c‚Ì•ªŠ„”(2`16)>";
 	cin >> h;
 	cout << "‰¡‚Ì•ªŠ„”(2`16)>";
