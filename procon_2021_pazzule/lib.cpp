@@ -3,7 +3,7 @@
 #include "status.h"
 using namespace std;
 
-extern status answer;
+extern Status answer;
 extern int h, w;
 
 void show_table(vector<vector<int> > table) {

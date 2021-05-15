@@ -1,6 +1,7 @@
 //回答データ
 using namespace std;
-typedef struct status {
+struct Status {
+	vector<vector<int> > place; // 場所の位置
 	string spin_info;  //回転情報
 	int sel_cnt = 0;  //選択回数(ライン数)
 	vector<int> sel_place;  //選択画像位置
@@ -14,6 +15,14 @@ typedef struct status {
 	void init(int h, int w) {
 		for (int i = 0; i < h * w; i++)
 			spin_info += "0";
+	    
+		place.resize(h);
+		for (int i = 0; i < h; i++)
+			place[i].resize(w);
+
+		for (int i = 0; i < h; i++)
+			for (int j = 0; j < w; j++)
+				place[i][j] = i * w + j;
 	}
 
 	//選択
@@ -31,14 +40,15 @@ typedef struct status {
 
 
 	//交換操作
-	void move(int dx, int dy, int place, int w, int swap_rate) {
+	void move(int dx, int dy, int px, int py, int w, int swap_rate) {
 		total_cost += swap_rate;
 		swap_cnt[swap_cnt.size() - 1] += 1;
 		if (dy == -1) swap_operator[swap_operator.size() - 1] += "U";
 		if (dx == -1) swap_operator[swap_operator.size() - 1] += "L";
 		if (dy == 1) swap_operator[swap_operator.size() - 1] += "D";
 		if (dx == 1) swap_operator[swap_operator.size() - 1] += "R";
-		swap(spin_info[place], spin_info[place + dx + dy * w]);
+		swap(spin_info[px + py * w], spin_info[px + py * w + dx + dy * w]);
+		swap(place[py + dy][px + dx], place[py][px]);
 	}
 
 
@@ -62,4 +72,4 @@ typedef struct status {
 		printf("総コスト  : %d\n", total_cost);
 		printf("選択コスト: %d\n", sellect_cost);
 	}
-} status;
+};

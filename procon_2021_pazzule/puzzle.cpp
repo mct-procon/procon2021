@@ -19,10 +19,10 @@ using namespace std;
 
 vector<vector<int> > complete;
 int px, py, h, w, move_style, sel_or_swap = 0, sel_rate, swap_rate, sel_lim;
-status answer;
+Status answer;
 int main() {
 	vector<vector<int> > table;
-    status ans;
+    Status init_status;
 	cout << "c‚Ì•ªŠ„”(2`16)>";
 	cin >> h;
 	cout << "‰¡‚Ì•ªŠ„”(2`16)>";
@@ -56,19 +56,19 @@ int main() {
 			cin >> complete[i][j];
 
 	//‰ñ“š—pƒf[ƒ^‰Šú‰»
-	ans.init(h, w);
+	init_status.init(h, w);
 
 	//ƒpƒYƒ‹
 	int clear = 0;
 	switch (move_style) {
 	case HAND:
-		hand_solve(&table, &ans);
+		hand_solve(&init_status);
 		break;
 	case IDAS:
-		idastar_solve(&table, &ans);
+		idastar_solve(&init_status);
 		break;
 	case IDAS_MS:
-		idastar_ms_solve(&table, &ans);
+		idastar_ms_solve(&init_status);
 		break;
 	}
 	show_table(table);
