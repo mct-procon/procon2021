@@ -4,6 +4,7 @@
 #include "status.h"
 using namespace std;
 extern vector<vector<int> > complete;
+extern vector<int> goal_place;
 extern int px, py, h, w, move_style, sel_or_swap, sel_rate, swap_rate, sel_lim;
 extern Status answer;
 //‰æ‘œ‚Ì“ü‚ê‘Ö‚¦ˆ—
@@ -11,7 +12,7 @@ void move(Status *status, int dx, int dy) {
 	if (px + dx < 0 || px + dx >= (status->place)[0].size() || py + dy < 0 || py + dy >= (status->place).size()) return;
 
 	if (sel_or_swap)
-		status->move(dx, dy, px, py, w, swap_rate);
+		status->move(dx, dy, w, swap_rate, goal_place);
 
     px += dx; py += dy;
 }
@@ -59,7 +60,7 @@ void hand_puzzle(Status* status) {
 			break;
 		case 'g':
 			if (!(sel_or_swap))
-				status->sellect(px + py * w, sel_rate);
+				status->sellect(px, py, sel_rate);
 			sel_or_swap ^= 1;
 			break;
 		}
@@ -71,6 +72,7 @@ void hand_puzzle(Status* status) {
 
 //l—Í‘€ì‚Ìˆ—‚Ì—¬‚ê
 void hand_solve(Status* status) {
+	status->x = 0; status->y = 0;
 	while (1) {
 		if (status->place == complete) {
 			answer = *status;

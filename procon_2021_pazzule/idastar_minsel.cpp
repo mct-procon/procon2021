@@ -1,9 +1,11 @@
 #include <iostream>
 #include <vector>
 #include "status.h"
+#include "lib.h"
 using namespace std;
 
 extern vector<vector<int> > complete;
+extern vector<int> goal_place;
 extern int h, w, sel_lim, sel_rate, swap_rate;
 extern Status answer;
 
@@ -34,10 +36,9 @@ int idastar_minsel(int depth, int count, int sel_lim, Status status, int px, int
 						continue;
 					}
 					sel_num++;
-					status.sellect(j + i * w, sel_rate);
+					status.sellect(j, i, sel_rate);
 				}
-				status.move(d[0][k], d[1][k], j, i, w, swap_rate);
-
+				status.move(d[0][k], d[1][k], w, swap_rate, goal_place);
 				clear = idastar_minsel(depth - 1, count + 1, sel_lim - sel_num, status, j + d[0][k], i + d[1][k]);
 				if (clear) break;
 

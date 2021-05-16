@@ -4,6 +4,7 @@
 using namespace std;
 
 extern Status answer;
+extern vector<int> goal_place;
 extern int h, w;
 
 void show_table(vector<vector<int> > table) {
@@ -41,3 +42,4 @@ void show_table(vector<vector<int> > table) {
 		}
 	}
 }
+

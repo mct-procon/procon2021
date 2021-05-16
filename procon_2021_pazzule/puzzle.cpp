@@ -18,6 +18,7 @@
 using namespace std;
 
 vector<vector<int> > complete;
+vector<int> goal_place;
 int px, py, h, w, move_style, sel_or_swap = 0, sel_rate, swap_rate, sel_lim;
 Status answer;
 int main() {
@@ -55,8 +56,14 @@ int main() {
 		for (int j = 0; j < w; j++)
 			cin >> complete[i][j];
 
+	//マンハッタン距離計算用座標の位置
+	goal_place.resize(h * w);
+	for (int y = 0; y < h; y++)
+		for (int x = 0; x < w; x++)
+			goal_place[complete[y][x]] = x + y * w;
+
 	//回答用データ初期化
-	init_status.init(h, w);
+	init_status.init(-1, -1, h, w, goal_place);
 
 	//パズル
 	int clear = 0;

@@ -1,17 +1,19 @@
 #include <iostream>
 #include <vector>
+#include <queue>
 #include "status.h"
+#include "lib.h"
 using namespace std;
-
 extern vector<vector<int> > complete;
+extern vector<int> goal_place;
 extern Status answer;
 extern int h, w, sel_rate, swap_rate;
 
 //IDA*‚É‚æ‚é‰æ‘œ•œŒ³’Tõ
-int idastar(int depth, int count, Status status, int px, int py) {
+bool idastar(int depth, int count, Status status) {
 	if (status.place == complete) {
 		answer = status;
-		return 1;
+		return true;
 	}
 	if (depth == 0) return 0;
 
@@ -20,34 +22,50 @@ int idastar(int depth, int count, Status status, int px, int py) {
 		{ 1, 0, -1, 0}
 	};
 
+	//è‚Ì¶¬
+	auto compare = [](Status a, Status b) {
+		return a.eval_cost > b.eval_cost;
+	};
+	priority_queue <
+		Status,
+		vector<Status>,
+		decltype(compare)
+	> que {compare};
+	if (depth == 1)
+		int a = 10;
 	Status backup_status = status;
-	int clear = 0;
-	for (int i = 0; i < h; i++) {
-		for (int j = 0; j < w; j++) {
+	for (int y = 0; y < h; y++) {
+		for (int x = 0; x < w; x++) {
 			for (int k = 0; k < 4; k++) {
-				if (j + d[0][k] < 0 || j + d[0][k] >= w || i + d[1][k] < 0 || i + d[1][k] >= h) continue;
+				if (x + d[0][k] < 0 || x + d[0][k] >= w || y + d[1][k] < 0 || y + d[1][k] >= h) continue;
 				
-				if (py != i || px != j) status.sellect(j + i * w, sel_rate);
-				status.move(d[0][k], d[1][k], j, i, w, swap_rate);
-
-				clear = idastar(depth - 1, count + 1, status, j + d[0][k], i + d[1][k]);
-				if (clear) break;
-
+				if (status.x != x || status.y != y) status.sellect(x, y, sel_rate);
+				status.move(d[0][k], d[1][k], w, swap_rate, goal_place);
+				que.push(status);
 				status = backup_status;
 			}
-			if (clear) break;
 		}
-		if (clear) break;
 	}
+
+	// ÀÛ‚É“Ç‚Ş
+
+	bool clear = false;
+	while (!que.empty() && !clear) {
+		Status te = que.top(); que.pop();
+		if (te.eval_cost >= depth) break;
+
+		clear = idastar(depth -1, count + 1, te);
+	}
+
 	return clear;
 }
 
 //ˆ—‚Ì—¬‚ê(‚±‚±‚Å‚Í”½•œ[‰»‚Ì‚İ)
 void idastar_solve(Status *status){
-	int clear = 0;
+	bool clear = false;
 	for (int depth = 0; !clear; depth++) {
-		clear = idastar(depth, 0, *status, -1, -1);
-		printf("%d\n", depth);
+		clear = idastar(depth, 0, *status);
+		printf("depth: %d\n", depth);
 	}
 	answer.show();
 	answer.show_cost();
