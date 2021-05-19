@@ -28,9 +28,9 @@ int idastar_minsel(int depth, int count, int sel_lim, Status status) {
 		for (int x = 0; x < w; x++) {
 			for (int k = 0; k < 4; k++) {
 				int sel_num = 0;
-				if (x + d[0][k] < 0 || x + d[0][k] >= w || y + d[1][k] < 0 || y + d[1][k] >= h) continue;
-				
-				if (status.x == x + d[0][k] && status.y == y + d[1][k])
+				int next_x = (x + d[0][k] + w) % w, next_y = (y + d[1][k] + h) % h;
+
+				if (status.x == next_x && status.y == next_y)
 					continue;
 				if (status.x != x || status.y != y) {
 					if (sel_lim == 0) {
@@ -40,7 +40,7 @@ int idastar_minsel(int depth, int count, int sel_lim, Status status) {
 					sel_num++;
 					status.sellect(x, y, sel_rate);
 				}
-				status.move(d[0][k], d[1][k], w, swap_rate, goal_place);
+				status.move(d[0][k], d[1][k], h, w, swap_rate, goal_place);
 				clear = idastar_minsel(depth - 1, count + 1, sel_lim - sel_num, status);
 				if (clear) break;
 

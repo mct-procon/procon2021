@@ -17,19 +17,19 @@ void show_table(vector<vector<int> > table) {
 			switch (answer.swap_operator[s][t])
 			{
 			case 'U':
-				swap(table[sel_place / w][sel_place % w], table[sel_place / w - 1][sel_place % w]);
+				swap(table[sel_place / w][sel_place % w], table[(sel_place / w - 1 + h) % h][sel_place % w]);
 				sel_place -= w;
 				break;
 			case 'L':
-				swap(table[sel_place / w][sel_place % w], table[sel_place / w][sel_place % w - 1]);
+				swap(table[sel_place / w][sel_place % w], table[sel_place / w][(sel_place % w - 1 + w) % w]);
 				sel_place -= 1;
 				break;
 			case 'R':
-				swap(table[sel_place / w][sel_place % w], table[sel_place / w][sel_place % w + 1]);
+				swap(table[sel_place / w][sel_place % w], table[sel_place / w][(sel_place % w + 1) % w]);
 				sel_place += 1;
 				break;
 			case 'D':
-				swap(table[sel_place / w][sel_place % w], table[sel_place / w + 1][sel_place % w]);
+				swap(table[sel_place / w][sel_place % w], table[(sel_place / w + 1) % h][sel_place % w]);
 				sel_place += w;
 				break;
 			}

@@ -2,13 +2,13 @@
 using namespace std;
 struct Status {
 	vector<vector<int> > place; // 場所の位置
-	int x, y; //選択場所
+	int x = -1, y = -1; //選択場所
 	string spin_info;  //回転情報
 	int sel_cnt = 0;  //選択回数(ライン数)
 	vector<int> sel_place;  //選択画像位置
 	vector<int> swap_cnt;  //交換回数
 	vector<string> swap_operator; // 交換操作
-	int eval_cost; //評価値
+	int eval_cost = 0; //評価値
 	int total_cost = 0;  //総コスト
 	int sellect_cost = 0;  //選択コスト
 
@@ -45,16 +45,16 @@ struct Status {
 
 
 	//交換操作
-	void move(int dx, int dy, int w, int swap_rate, vector<int> goal_place) {
+	void move(int dx, int dy, int h, int w, int swap_rate, vector<int> goal_place) {
 		total_cost += swap_rate;
 		swap_cnt[swap_cnt.size() - 1] += 1;
 		if (dy == -1) swap_operator[swap_operator.size() - 1] += "U";
 		if (dx == -1) swap_operator[swap_operator.size() - 1] += "L";
 		if (dy == 1) swap_operator[swap_operator.size() - 1] += "D";
 		if (dx == 1) swap_operator[swap_operator.size() - 1] += "R";
-		swap(spin_info[x + y * w], spin_info[x + y * w + dx + dy * w]);
-		swap(place[y + dy][x + dx], place[y][x]);
-		x += dx; y += dy;
+		swap(spin_info[x + y * w], spin_info[(x + dx + w) % w + ((y + dy + h) % h) * w]);
+		swap(place[(y + dy + h) % h][(x + dx + w) % w], place[y][x]);
+		x = (x + dx + w) % w; y = (y + dy + h) % h;
 		calc_val(goal_place);
 	}
 

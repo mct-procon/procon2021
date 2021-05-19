@@ -9,12 +9,10 @@ extern int px, py, h, w, move_style, sel_or_swap, sel_rate, swap_rate, sel_lim;
 extern Status answer;
 //‰æ‘œ‚Ì“ü‚ê‘Ö‚¦ˆ—
 void move(Status *status, int dx, int dy) {
-	if (px + dx < 0 || px + dx >= (status->place)[0].size() || py + dy < 0 || py + dy >= (status->place).size()) return;
-
 	if (sel_or_swap)
-		status->move(dx, dy, w, swap_rate, goal_place);
+		status->move(dx, dy, h, w, swap_rate, goal_place);
 
-    px += dx; py += dy;
+    px = (px + dx + w) % w; py = (py + dy + h) % h;
 }
 
 //•\¦

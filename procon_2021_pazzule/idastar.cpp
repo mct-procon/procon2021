@@ -35,12 +35,12 @@ bool idastar(int depth, int count, Status status) {
 	for (int y = 0; y < h; y++) {
 		for (int x = 0; x < w; x++) {
 			for (int k = 0; k < 4; k++) {
-				if (x + d[0][k] < 0 || x + d[0][k] >= w || y + d[1][k] < 0 || y + d[1][k] >= h) continue;
+				int next_x = (x + d[0][k] + w) % w, next_y = (y + d[1][k] + h) % h;
 				
-				if (status.x == x + d[0][k]  && status.y == y + d[1][k])
+				if (status.x == next_x  && status.y == next_y)
 					continue;
 				if (status.x != x || status.y != y) status.sellect(x, y, sel_rate);
-				status.move(d[0][k], d[1][k], w, swap_rate, goal_place);
+				status.move(d[0][k], d[1][k], h, w, swap_rate, goal_place);
 				que.push(status);
 				status = backup_status;
 			}
