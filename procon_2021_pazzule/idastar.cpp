@@ -39,6 +39,8 @@ bool idastar(int depth, int count, Status status) {
 			for (int k = 0; k < 4; k++) {
 				if (x + d[0][k] < 0 || x + d[0][k] >= w || y + d[1][k] < 0 || y + d[1][k] >= h) continue;
 				
+				if (status.x == x + d[0][k]  && status.y == y + d[1][k])
+					continue;
 				if (status.x != x || status.y != y) status.sellect(x, y, sel_rate);
 				status.move(d[0][k], d[1][k], w, swap_rate, goal_place);
 				que.push(status);

@@ -30,6 +30,8 @@ int idastar_minsel(int depth, int count, int sel_lim, Status status, int px, int
 				int sel_num = 0;
 				if (j + d[0][k] < 0 || j + d[0][k] >= w || i + d[1][k] < 0 || i + d[1][k] >= h) continue;
 				
+				if (status.x == j + d[0][k] && status.y == i + d[1][k])
+					continue;
 				if (py != i || px != j) {
 					if (sel_lim == 0) {
 						status = backup_status;
