@@ -31,8 +31,6 @@ bool idastar(int depth, int count, Status status) {
 		vector<Status>,
 		decltype(compare)
 	> que {compare};
-	if (depth == 1)
-		int a = 10;
 	Status backup_status = status;
 	for (int y = 0; y < h; y++) {
 		for (int x = 0; x < w; x++) {

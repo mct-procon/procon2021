@@ -32,7 +32,7 @@ int main() {
 	cin >> sel_rate;
 	cout << "交換コスト変換レート(1～100)>";
 	cin >> swap_rate;
-	cout << "パズル手法(0: 手動 1: IDA* 2:選択回数制限付きIDA*)>";
+	cout << "パズル手法(0:手動   1:IDA*   2:選択回数制限付きIDA*)>";
 	cin >> move_style;
 	if (move_style == IDAS_MS) {
 		cout << "選択回数制限>";

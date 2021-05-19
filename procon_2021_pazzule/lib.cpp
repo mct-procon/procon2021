@@ -33,9 +33,9 @@ void show_table(vector<vector<int> > table) {
 				sel_place += w;
 				break;
 			}
-			for (int i = 0; i < h; i++) {
-				for (int j = 0; j < w; j++) {
-					cout << table[i][j] << " ";
+			for (int y = 0; y < h; y++) {
+				for (int x = 0; x < w; x++) {
+					cout << table[y][x] << " ";
 				}
 				cout << endl;
 			}

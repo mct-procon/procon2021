@@ -20,11 +20,11 @@ void move(Status *status, int dx, int dy) {
 //•\Ž¦
 void show(vector<vector<int> > *place) {
 	system("cls");
-	for (unsigned int i = 0; i < place->size(); i++) {
-		for (unsigned int j = 0; j < (*place)[0].size(); j++)
-			printf("%2x  ", (*place)[i][j]);
+	for (unsigned int y = 0; y < place->size(); y++) {
+		for (unsigned int x = 0; x < (*place)[0].size(); x++)
+			printf("%2x  ", (*place)[y][x]);
 
-		if (py == i)
+		if (py == y)
 			cout << "©";
 		cout << endl;
 	}
