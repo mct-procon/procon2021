@@ -37,11 +37,11 @@ void show_table(vector<vector<int> > table) {
 			for (int y = 0; y < h; y++) {
 				for (int x = 0; x < w; x++) {
 					if (sel_place == x + y * w)
-						cout << "\033[31m" << table[y][x] << "\033[m" << " ";
+						printf("\033[31m%2x\033[m ", table[y][x]);
 					else if (past_place == x + y * w)
-						cout << "\033[34m" << table[y][x] << "\033[m" << " ";
+						printf("\033[34m%2x\033[m ", table[y][x]);
 					else
-					    cout << table[y][x] << " ";
+						printf("%2x ", table[y][x]);
 				}
 				cout << endl;
 			}
