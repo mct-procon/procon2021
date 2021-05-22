@@ -24,6 +24,8 @@ bool idastar(int depth, int count, Status status) {
 
 	//Žè‚Ì¶¬
 	auto compare = [](Status a, Status b) {
+		if (a.eval_cost == b.eval_cost)
+			return a.sel_cnt > b.sel_cnt;
 		return a.eval_cost > b.eval_cost;
 	};
 	priority_queue <
