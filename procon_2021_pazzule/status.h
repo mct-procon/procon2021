@@ -36,7 +36,7 @@ struct Status {
 		sellect_cost += sel_rate;
 		total_cost += sel_rate;
 		sel_place.resize(sel_place.size() + 1);
-		sel_place[sel_place.size() - 1] = x + y * place[0].size();
+		sel_place[sel_place.size() - 1] = x + y * (int)place[0].size();
 		swap_cnt.resize(swap_cnt.size() + 1);
 		swap_cnt[swap_cnt.size() - 1] = 0;
 		swap_operator.resize(swap_operator.size() + 1);
