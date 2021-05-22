@@ -13,10 +13,12 @@
 #include "idastar.h"
 #include "idastar_minsel.h"
 #include "astar.h"
+#include "idastar_speed.h"
 #define HAND 0
 #define IDAS 1
 #define IDAS_MS 2
 #define ASTAR 3
+#define IDAS_S 4
 using namespace std;
 
 vector<vector<int> > complete;
@@ -34,7 +36,7 @@ int main() {
 	cin >> sel_rate;
 	cout << "交換コスト変換レート(1～100)>";
 	cin >> swap_rate;
-	cout << "パズル手法(0:手動   1:IDA*   2:選択回数制限付きIDA*   3:A*)>";
+	cout << "パズル手法(0:手動   1:IDA*   2:選択回数制限付きIDA*   3:A* 4: 高速IDA*)>";
 	cin >> move_style;
 	if (move_style == IDAS_MS) {
 		cout << "選択回数制限>";
@@ -81,6 +83,9 @@ int main() {
 		break;
 	case ASTAR:
 		astar_solve(&init_status);
+		break;
+	case IDAS_S:
+		idastar_solve(&init_status);
 		break;
 	}
 	cout << endl;
