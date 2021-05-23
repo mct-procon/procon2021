@@ -21,7 +21,7 @@
 #define IDAS_S 4
 using namespace std;
 
-vector<vector<int> > complete;
+vector<vector<unsigned _int8> > complete;
 vector<int> goal_place;
 int px, py, h, w, move_style, sel_or_swap = 0, sel_rate, swap_rate, sel_lim;
 Status answer;
@@ -57,8 +57,10 @@ int main() {
 
 	cout << "目標画像>\n";
 	for (int i = 0; i < h; i++)
-		for (int j = 0; j < w; j++)
-			cin >> complete[i][j];
+		for (int j = 0; j < w; j++) {
+			int num; cin >> num;
+			complete[i][j] = num;
+		}
 
 	//マンハッタン距離計算用座標の位置
 	goal_place.resize(h * w);

@@ -1,11 +1,10 @@
 //回答データ
 using namespace std;
 struct Status {
-	vector<vector<int> > place; // 場所の位置
-	int x = -1, y = -1; //選択場所
-	string spin_info;  //回転情報
-	int sel_cnt = 0;  //選択回数(ライン数)
-	vector<int> sel_place;  //選択画像位置
+	vector<vector<unsigned _int8> > place; // 場所の位置
+	short int x = -1, y = -1; //選択場所
+	unsigned char sel_cnt = 0;  //選択回数(ライン数)(最大128回)
+	vector<unsigned char> sel_place;  //選択画像位置
 	vector<int> swap_cnt;  //交換回数
 	vector<string> swap_operator; // 交換操作
 	int eval_cost = 0; //評価値
@@ -14,9 +13,6 @@ struct Status {
 
 	//初期化
 	void init(int _x, int _y, int h, int w, vector<int> goal_place) {
-		for (int i = 0; i < h * w; i++)
-			spin_info += "0";
-	    
 		place.resize(h);
 		for (int i = 0; i < h; i++)
 			place[i].resize(w);
@@ -52,21 +48,13 @@ struct Status {
 		if (dx == -1) swap_operator[swap_operator.size() - 1] += "L";
 		if (dy == 1) swap_operator[swap_operator.size() - 1] += "D";
 		if (dx == 1) swap_operator[swap_operator.size() - 1] += "R";
-		swap(spin_info[x + y * w], spin_info[(x + dx + w) % w + ((y + dy + h) % h) * w]);
 		swap(place[(y + dy + h) % h][(x + dx + w) % w], place[y][x]);
 		x = (x + dx + w) % w; y = (y + dy + h) % h;
 		calc_val(goal_place);
 	}
 
-
-	//回転操作
-	void spin(int place) {
-		spin_info[place] = (spin_info[place] - '0' + 1) % 4 + '0';
-	}
-
 	//表示
 	void show() {
-		cout << "回転情報: " << spin_info << endl;
 		printf("選択回数: %d\n", sel_cnt);
 		for (int i = 0; i < sel_cnt; i++) {
 			printf("選択位置: %x\n", sel_place[i]);

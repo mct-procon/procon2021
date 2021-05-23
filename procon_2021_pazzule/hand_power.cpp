@@ -3,7 +3,7 @@
 #include <conio.h>
 #include "status.h"
 using namespace std;
-extern vector<vector<int> > complete;
+extern vector<vector<unsigned _int8> > complete;
 extern vector<int> goal_place;
 extern int px, py, h, w, move_style, sel_or_swap, sel_rate, swap_rate, sel_lim;
 extern Status answer;
@@ -16,7 +16,7 @@ void move(Status *status, int dx, int dy) {
 }
 
 //•\Ž¦
-void show(vector<vector<int> > *place) {
+void show(vector<vector<unsigned char> > *place) {
 	system("cls");
 	for (unsigned int y = 0; y < place->size(); y++) {
 		for (unsigned int x = 0; x < (*place)[0].size(); x++)
@@ -52,9 +52,6 @@ void hand_puzzle(Status* status) {
 			break;
 		case 'd':
 			v = 3;
-			break;
-		case 't':
-			status->spin(px + py * w);
 			break;
 		case 'g':
 			if (!(sel_or_swap))

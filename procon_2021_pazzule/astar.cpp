@@ -4,7 +4,7 @@
 #include "status.h"
 #include "lib.h"
 using namespace std;
-extern vector<vector<int> > complete;
+extern vector<vector<unsigned _int8> > complete;
 extern vector<int> goal_place;
 extern Status answer;
 extern int h, w, sel_rate, swap_rate;
@@ -58,4 +58,7 @@ void astar_solve(Status *status) {
 		}
 		if (clear) break;
 	}
+
+	answer.show();
+	answer.show_cost();
 }
