@@ -1,7 +1,7 @@
 //回答データ
 using namespace std;
 struct Status {
-	vector<vector<unsigned _int8> > place; // 場所の位置
+	vector<vector<unsigned char> > place; // 場所の位置
 	short int x = -1, y = -1; //選択場所
 	unsigned char sel_cnt = 0;  //選択回数(ライン数)(最大128回)
 	vector<unsigned char> sel_place;  //選択画像位置
@@ -66,6 +66,15 @@ struct Status {
 	void show_cost() {
 		printf("総コスト  : %d\n", total_cost);
 		printf("選択コスト: %d\n", sellect_cost);
+	}
+
+	void sub_for(int w) {
+		printf("%d\n", sel_cnt);
+		for (int i = 0; i < sel_cnt; i++) {
+			printf("%x%x\n", sel_place[i] % w, sel_place[i] / w);
+			printf("%d\n", swap_cnt[i]);
+			cout << swap_operator[i] << endl;
+		}
 	}
 
 	// 最適解の下界

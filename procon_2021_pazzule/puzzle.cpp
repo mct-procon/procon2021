@@ -21,7 +21,7 @@
 #define IDAS_S 4
 using namespace std;
 
-vector<vector<unsigned _int8> > complete;
+vector<vector<unsigned char> > complete;
 vector<int> goal_place;
 int px, py, h, w, move_style, sel_or_swap = 0, sel_rate, swap_rate, sel_lim;
 Status answer;
@@ -92,5 +92,7 @@ int main() {
 	}
 	cout << endl;
 	show_table(table);
+	cout << endl;
+	answer.sub_for(w);
 	return 0;
 }

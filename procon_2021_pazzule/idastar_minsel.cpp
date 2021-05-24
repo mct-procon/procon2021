@@ -4,7 +4,7 @@
 #include "lib.h"
 using namespace std;
 
-extern vector<vector<unsigned _int8> > complete;
+extern vector<vector<unsigned char> > complete;
 extern vector<int> goal_place;
 extern int h, w, sel_lim, sel_rate, swap_rate;
 extern Status answer;

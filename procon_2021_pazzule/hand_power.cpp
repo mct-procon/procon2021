@@ -3,7 +3,7 @@
 #include <conio.h>
 #include "status.h"
 using namespace std;
-extern vector<vector<unsigned _int8> > complete;
+extern vector<vector<unsigned char> > complete;
 extern vector<int> goal_place;
 extern int px, py, h, w, move_style, sel_or_swap, sel_rate, swap_rate, sel_lim;
 extern Status answer;
