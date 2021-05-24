@@ -7,7 +7,7 @@ using namespace std;
 extern vector<vector<unsigned char> > complete;
 extern vector<int> goal_place;
 extern Status answer;
-extern int h, w, sel_rate, swap_rate;
+extern int h, w, sel_rate, swap_rate, sel_lim;
 
 //A*‚É‚æ‚é’Tõ(ƒƒ‚ƒŠ‚Í‚»‚ñ‚È‚ÉH‚×‚ç‚ê‚È‚¢‚Æ—\‘ª)
 void astar_solve(Status *status) {
@@ -41,7 +41,10 @@ void astar_solve(Status *status) {
 
 					if (sta.x == next_x && sta.y == next_y)
 						continue;
-					if (sta.x != x || sta.y != y) sta.sellect(x, y, sel_rate);
+					if (sta.x != x || sta.y != y) {
+						if (sta.sel_cnt >= sel_lim) continue;
+						sta.sellect(x, y, sel_rate);
+					}
 					sta.move(d[0][k], d[1][k], h, w, swap_rate, goal_place);
 					if (sta.place == complete) {
 						answer = sta;

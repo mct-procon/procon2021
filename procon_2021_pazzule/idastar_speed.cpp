@@ -7,7 +7,7 @@ using namespace std;
 extern vector<vector<unsigned char> > complete;
 extern vector<int> goal_place;
 extern Status answer;
-extern int h, w, sel_rate, swap_rate;
+extern int h, w, sel_rate, swap_rate, sel_lim;
 
 //IDA*‚É‚æ‚é‰æ‘œ•œŒ³’Tõ
 //‘I‘ð‚µ‚½‰æ‘œ‚©‚ç‰Eor‰º‚É‚µ‚©“®‚©‚·Žè‚ðŒ©‚È‚¢
@@ -42,7 +42,10 @@ bool idastar_s(int depth, int count, Status status) {
 
 				if (status.x == next_x && status.y == next_y)
 					continue;
-				if (status.x != x || status.y != y) status.sellect(x, y, sel_rate);
+				if (status.x != x || status.y != y) {
+					if (status.sel_cnt >= sel_lim) continue;
+					status.sellect(x, y, sel_rate);
+				}
 				status.move(d[0][k], d[1][k], h, w, swap_rate, goal_place);
 				que.push(status);
 				status = backup_status;
