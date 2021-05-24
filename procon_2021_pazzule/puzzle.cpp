@@ -81,7 +81,7 @@ int main() {
 		astar_solve(&init_status);
 		break;
 	case IDAS_S:
-		idastar_solve(&init_status);
+		idastar_s_solve(&init_status);
 		break;
 	}
 	cout << endl;
