@@ -1,4 +1,5 @@
 //回答データ
+#define min(x, y) (x < y)? x : y
 using namespace std;
 struct Status {
 	vector<vector<unsigned char> > place; // 場所の位置
@@ -78,14 +79,16 @@ struct Status {
 	}
 
 	// 最適解の下界
-	// すべてのマスのマンハッタン距離の合計 / 2
+	// 各マスの最小移動距離の合計 / 2
 	void calc_val(vector<int> goal_place) {
-		int num = 0;
+		int sum = 0;
 		for (int y = 0; y < place.size(); y++) {
 			for (int x = 0; x < place[y].size(); x++) {
-				num += abs(goal_place[place[y][x]] / (int)place[y].size() - y) + abs(goal_place[place[y][x]] % (int)place[y].size() - x);
+				int dis_x = min(abs(goal_place[place[y][x]] % (int)place[y].size() - x), (int)place[y].size() - abs(goal_place[place[y][x]] % (int)place[y].size() - x));
+				int dis_y = min(abs(goal_place[place[y][x]] / (int)place[y].size() - y), (int)place[y].size() - abs(goal_place[place[y][x]] / (int)place[y].size() - y));
+				sum += dis_x + dis_y;
 			}
 		}
-		eval_cost = num / 2;
+		eval_cost = sum / 2;
 	}
 };
