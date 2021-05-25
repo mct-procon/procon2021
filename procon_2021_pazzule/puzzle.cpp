@@ -12,16 +12,11 @@
 #include "hand_power.h"
 #include "idastar.h"
 #include "astar.h"
-#include "idastar_speed.h"
-#define HAND 0
-#define IDAS 1
-#define ASTAR 2
-#define IDAS_S 3
 using namespace std;
 
 vector<vector<unsigned char> > complete;
 vector<int> goal_place;
-int px, py, h, w, move_style, sel_or_swap = 0, sel_rate, swap_rate, sel_lim;
+int px, py, h, w, move_style, sel_or_swap = 0, sel_rate, swap_rate, sel_lim, search_dir;
 Status answer;
 int main() {
 	vector<vector<int> > table;
@@ -36,9 +31,10 @@ int main() {
 	cin >> swap_rate;
 	cout << "選択回数制限(2～128)>";
 	cin >> sel_lim;
-	cout << "パズル手法(0:手動   1:IDA*   2:A*   3: 高速IDA*)>";
+	cout << "パズル手法(0:手動   1:IDA*   2:A*)>";
 	cin >> move_style;
-	
+	cout << "移動方向(0: 全方向 1:右と下)>";
+	cin >> search_dir;
 	table.resize(h);
 	for (int i = 0; i < h; i++)
 		table[i].resize(w);
@@ -79,9 +75,6 @@ int main() {
 		break;
 	case ASTAR:
 		astar_solve(&init_status);
-		break;
-	case IDAS_S:
-		idastar_s_solve(&init_status);
 		break;
 	}
 	cout << endl;

@@ -7,7 +7,7 @@ using namespace std;
 extern vector<vector<unsigned char> > complete;
 extern vector<int> goal_place;
 extern Status answer;
-extern int h, w, sel_rate, swap_rate, sel_lim;
+extern int h, w, sel_rate, swap_rate, sel_lim, search_dir;
 
 //IDA*‚É‚æ‚é‰æ‘œ•œŒ³’Tõ
 bool idastar(int depth, int count, Status status) {
@@ -36,7 +36,7 @@ bool idastar(int depth, int count, Status status) {
 	Status backup_status = status;
 	for (int y = 0; y < h; y++) {
 		for (int x = 0; x < w; x++) {
-			for (int k = 0; k < 4; k++) {
+			for (int k = 0; k < ((search_dir)? 2 : 4); k++) {
 				int next_x = (x + d[0][k] + w) % w, next_y = (y + d[1][k] + h) % h;
 				
 				if (status.x == next_x  && status.y == next_y)

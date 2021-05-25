@@ -7,7 +7,7 @@ using namespace std;
 extern vector<vector<unsigned char> > complete;
 extern vector<int> goal_place;
 extern Status answer;
-extern int h, w, sel_rate, swap_rate, sel_lim;
+extern int h, w, sel_rate, swap_rate, sel_lim, search_dir;
 
 //A*‚É‚æ‚é’Tõ(ƒƒ‚ƒŠ‚Í‚»‚ñ‚È‚ÉH‚×‚ç‚ê‚È‚¢‚Æ—\‘ª)
 void astar_solve(Status *status) {
@@ -36,7 +36,7 @@ void astar_solve(Status *status) {
 		Status backup = sta;
 		for (int y = 0; y < h; y++) {
 			for (int x = 0; x < w; x++) {
-				for (int k = 0; k < 4; k++) {
+				for (int k = 0; k < ((search_dir) ? 2 : 4); k++) {
 					int next_x = (x + d[0][k] + w) % w, next_y = (y + d[1][k] + h) % h;
 
 					if (sta.x == next_x && sta.y == next_y)
