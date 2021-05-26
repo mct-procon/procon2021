@@ -21,45 +21,9 @@ Status answer;
 int main() {
 	vector<vector<int> > table;
     Status init_status;
-	cout << "縦の分割数(2～16)>";
-	cin >> h;
-	cout << "横の分割数(2～16)>";
-	cin >> w;
-	cout << "選択コスト変換レート(1～500)>";
-	cin >> sel_rate;
-	cout << "交換コスト変換レート(1～100)>";
-	cin >> swap_rate;
-	cout << "選択回数制限(2～128)>";
-	cin >> sel_lim;
-	cout << "パズル手法(0:手動   1:IDA*   2:A*)>";
-	cin >> move_style;
-	cout << "移動方向(0: 全方向 1:右と下)>";
-	cin >> search_dir;
-	table.resize(h);
-	for (int i = 0; i < h; i++)
-		table[i].resize(w);
-	complete.resize(h);
-	for (int i = 0; i < h; i++)
-		complete[i].resize(w);
 
-
-	//分割された画像に番号をつける
-	for (int i = 0; i < h; i++)
-		for (int j = 0; j < w; j++)
-			table[i][j] = i * w + j;
-
-	cout << "目標画像>\n";
-	for (int i = 0; i < h; i++)
-		for (int j = 0; j < w; j++) {
-			int num; cin >> num;
-			complete[i][j] = num;
-		}
-
-	//マンハッタン距離計算用座標の位置
-	goal_place.resize(h * w);
-	for (int y = 0; y < h; y++)
-		for (int x = 0; x < w; x++)
-			goal_place[complete[y][x]] = x + y * w;
+	//入力
+	input(&table);
 
 	//回答用データ初期化
 	init_status.init(-1, -1, h, w, goal_place);

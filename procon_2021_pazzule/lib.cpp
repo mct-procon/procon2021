@@ -4,8 +4,52 @@
 using namespace std;
 
 extern Status answer;
+extern vector<vector<unsigned char> > complete;
 extern vector<int> goal_place;
-extern int h, w;
+extern int h, w, sel_rate, swap_rate, sel_lim, search_dir, move_style;
+
+void input(vector<vector<int> > *table) {
+	//入力を受け取る
+	cout << "縦の分割数(2～16)>";
+	cin >> h;
+	cout << "横の分割数(2～16)>";
+	cin >> w;
+	cout << "選択コスト変換レート(1～500)>";
+	cin >> sel_rate;
+	cout << "交換コスト変換レート(1～100)>";
+	cin >> swap_rate;
+	cout << "選択回数制限(2～128)>";
+	cin >> sel_lim;
+	cout << "パズル手法(0:手動   1:IDA*   2:A*)>";
+	cin >> move_style;
+	cout << "移動方向(0: 全方向 1:右と下)>";
+	cin >> search_dir;
+	table->resize(h);
+	for (int i = 0; i < h; i++)
+		(*table)[i].resize(w);
+	complete.resize(h);
+	for (int i = 0; i < h; i++)
+		complete[i].resize(w);
+
+	cout << "目標画像>\n";
+	for (int y = 0; y < h; y++)
+		for (int x = 0; x < w; x++) {
+			int num; cin >> num;
+			complete[y][x] = num;
+		}
+
+	//マンハッタン距離計算用座標の位置
+	goal_place.resize(h * w);
+	for (int y = 0; y < h; y++)
+		for (int x = 0; x < w; x++)
+			goal_place[complete[y][x]] = x + y * w;
+
+
+	//分割された画像に番号をつける
+	for (int i = 0; i < h; i++)
+		for (int j = 0; j < w; j++)
+			(*table)[i][j] = i * w + j;
+}
 
 void show_table(vector<vector<int> > table) {
 
