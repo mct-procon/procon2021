@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <time.h>
 #include "status.h"
 using namespace std;
 
@@ -9,6 +10,8 @@ extern vector<int> goal_place;
 extern int h, w, sel_rate, swap_rate, sel_lim, search_dir, move_style;
 
 void input(vector<vector<int> > *table) {
+	int target_i;
+
 	//入力を受け取る
 	cout << "縦の分割数(2～16)>";
 	cin >> h;
@@ -31,13 +34,34 @@ void input(vector<vector<int> > *table) {
 	for (int i = 0; i < h; i++)
 		complete[i].resize(w);
 
-	cout << "目標画像>\n";
-	for (int y = 0; y < h; y++)
-		for (int x = 0; x < w; x++) {
-			int num; cin >> num;
-			complete[y][x] = num;
+	cout << "目標画像(0: 指定   1: ランダム)>";
+	cin >> target_i;
+	switch (target_i) {
+	case 0:
+		for (int y = 0; y < h; y++)
+			for (int x = 0; x < w; x++) {
+				int num; cin >> num;
+				complete[y][x] = num;
+			}
+	case 1:
+		vector<int> remain(h * w, 1);
+
+		srand((unsigned int)time(NULL));
+		for (int y = 0; y < h; y++) {
+			for (int x = 0; x < w; x++) {
+				int r = rand()% (h * w);
+				while (!remain[r]) r = (r + 1) % (h * w);
+				complete[y][x] = r;
+				remain[r] = 0;
+			}
 		}
 
+		for (int y = 0; y < h; y++) {
+			for (int x = 0; x < w; x++)
+				printf("%2x ", complete[y][x]);
+			cout << endl;
+		}
+	}
 	//マンハッタン距離計算用座標の位置
 	goal_place.resize(h * w);
 	for (int y = 0; y < h; y++)

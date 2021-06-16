@@ -51,7 +51,7 @@ struct Status {
 		if (dx == 1) swap_operator[swap_operator.size() - 1] += "R";
 		swap(place[(y + dy + h) % h][(x + dx + w) % w], place[y][x]);
 		x = (x + dx + w) % w; y = (y + dy + h) % h;
-		calc_val(goal_place);
+		update_val(goal_place, dx, dy, h, w);
 	}
 
 	//表示
@@ -89,6 +89,24 @@ struct Status {
 				sum += dis_x + dis_y;
 			}
 		}
-		eval_cost = sum / 2;
+		eval_cost = sum * 5;
+	}
+
+	// 差分により評価値更新
+	void update_val(vector<int> goal_place, int dx, int dy, int h, int w) {
+		int pas_x = min(abs(goal_place[place[y][x]] % (int)place[y].size() - (x - dx + w) % w), (int)place[y].size() - abs(goal_place[place[y][x]] % (int)place[(y - dy + h) % h].size() - (x - dx + w) % w));
+		int pas_y = min(abs(goal_place[place[y][x]] / (int)place[y].size() - (y - dy + h) % h), (int)place[y].size() - abs(goal_place[place[y][x]] / (int)place[y].size() - (y - dy + h) % h));
+		int pas_dis = pas_x + pas_y;
+		int new_x = min(abs(goal_place[place[y][x]] % (int)place[y].size() - x), (int)place[y].size() - abs(goal_place[place[y][x]] % (int)place[y].size() - x));
+		int new_y = min(abs(goal_place[place[y][x]] / (int)place[y].size() - y), (int)place[y].size() - abs(goal_place[place[y][x]] / (int)place[y].size() - y));
+		int new_dis = new_x + new_y;
+		eval_cost += (new_dis - pas_dis) * 5;
+		pas_x = min(abs(goal_place[place[(y - dy + h) % h][(x - dx + w) % w]] % (int)place[y].size() - x), (int)place[y].size() - abs(goal_place[place[(y - dy + h) % h][(x - dx + w) % w]] % (int)place[y].size() - x));
+		pas_y = min(abs(goal_place[place[(y - dy + h) % h][(x - dx + w) % w]] / (int)place[y].size() - y), (int)place[y].size() - abs(goal_place[place[(y - dy + h) % h][(x - dx + w) % w]] / (int)place[y].size() - y));
+		pas_dis = pas_x + pas_y;
+		new_x = min(abs(goal_place[place[(y - dy + h) % h][(x - dx + w) % w]] % (int)place[y].size() - (x - dx + w) % w), (int)place[y].size() - abs(goal_place[place[(y - dy + h) % h][(x - dx + w) % w]] % (int)place[y].size() - (x - dx + w) % w));
+		new_y = min(abs(goal_place[place[(y - dy + h) % h][(x - dx + w) % w]] / (int)place[y].size() - (y - dy + h) % h), (int)place[y].size() - abs(goal_place[place[(y - dy + h) % h][(x - dx + w) % w]] / (int)place[y].size() - (y - dy + h) % h));
+		new_dis = new_x + new_y;
+		eval_cost += (new_dis - pas_dis) * 5;
 	}
 };
