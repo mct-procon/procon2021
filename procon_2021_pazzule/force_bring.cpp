@@ -19,10 +19,7 @@ void fb_solve(Status *status) {
 
 	// ‚Ğ‚½‚·‚ç¶ã‚©‚ç‹l‚ß‚é
 	for (int i = 0; i < n;  i++) {
-		if (i == 6) {
-			int sum;
-			sum = i + i + i;
-		}
+		if (target[i] == i) continue;
 		status->sellect(target[i] % w, target[i] / w, sel_rate);
 		while (status->x + status->y * w != i) {
 			int dx = 0, dy = 0;
