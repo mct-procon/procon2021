@@ -1,5 +1,5 @@
 #pragma once
-using namespace std;
+
 void move(Status *status, int dx, int dy);
 void show(vector<vector<int> > *place);
 void hand_puzzle(Status* status);

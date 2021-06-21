@@ -23,7 +23,7 @@ void input(vector<vector<int> > *table) {
 	cin >> swap_rate;
 	cout << "選択回数制限(2～128)>";
 	cin >> sel_lim;
-	cout << "パズル手法(0:手動   1:IDA*   2:A*)>";
+	cout << "パズル手法(0:手動   1:IDA*   2:A*   3:強制移動)>";
 	cin >> move_style;
 	cout << "移動方向(0: 全方向 1:右と下)>";
 	cin >> search_dir;
@@ -43,6 +43,7 @@ void input(vector<vector<int> > *table) {
 				int num; cin >> num;
 				complete[y][x] = num;
 			}
+		break;
 	case 1:
 		vector<int> remain(h * w, 1);
 

@@ -12,6 +12,7 @@
 #include "hand_power.h"
 #include "idastar.h"
 #include "astar.h"
+#include "force_bring.h"
 using namespace std;
 
 vector<vector<unsigned char> > complete;
@@ -39,6 +40,9 @@ int main() {
 		break;
 	case ASTAR:
 		astar_solve(&init_status);
+		break;
+	case FB:
+		fb_solve(&init_status);
 		break;
 	}
 	cout << endl;
