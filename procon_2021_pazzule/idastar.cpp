@@ -57,7 +57,7 @@ bool idastar(int depth, int count, Status status) {
 	bool clear = false;
 	while (!que.empty() && !clear) {
 		Status te = que.top(); que.pop();
-		if (te.eval_cost >= depth) break;
+		//if (te.eval_cost >= depth) break;
 
 		clear = idastar(depth -1, count + 1, te);
 	}

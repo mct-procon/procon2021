@@ -6,3 +6,4 @@ void input(vector<vector<int> > *table);
 #define IDAS 1
 #define ASTAR 2
 #define FB 3
+#define DB 4

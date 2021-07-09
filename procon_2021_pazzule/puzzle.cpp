@@ -13,6 +13,7 @@
 #include "idastar.h"
 #include "astar.h"
 #include "force_bring.h"
+#include "depth_block.h"
 using namespace std;
 
 vector<vector<unsigned char> > complete;
@@ -43,6 +44,9 @@ int main() {
 		break;
 	case FB:
 		fb_solve(&init_status);
+		break;
+	case DB:
+		db_solve(&init_status);
 		break;
 	}
 	cout << endl;
