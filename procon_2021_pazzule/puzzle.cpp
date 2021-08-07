@@ -20,6 +20,7 @@ vector<vector<unsigned char> > complete;
 vector<int> goal_place;
 int px, py, h, w, move_style, sel_or_swap = 0, sel_rate, swap_rate, sel_lim, search_dir;
 Status answer;
+
 int main() {
 	vector<vector<int> > table;
     Status init_status;

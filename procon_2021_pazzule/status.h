@@ -54,6 +54,44 @@ struct Status {
 		update_val(goal_place, dx, dy, h, w);
 	}
 
+	//戻す
+	void unmove(int pre_x, int pre_y, int h, int w, int sel_rate, int swap_rate, vector<int> goal_place) {
+		switch (swap_operator[swap_operator.size() - 1][swap_operator[swap_operator.size() - 1].size() -1]) {
+		case 'U':
+			swap(place[(y + 1 + h) % h][(x + w) % w], place[y][x]);
+			y = (y + 1 + h) % h;
+			update_val(goal_place, 0, 1, h, w);
+			break;
+		case 'L':
+			swap(place[(y + h) % h][(x + 1 + w) % w], place[y][x]);
+			x = (x + 1 + w) % w;
+			update_val(goal_place, 1, 0, h, w);
+			break;
+		case 'D':
+			swap(place[(y - 1 + h) % h][(x + w) % w], place[y][x]);
+			y = (y - 1 + h) % h;
+			update_val(goal_place, 0, -1, h, w);
+			break;
+		case 'R':
+			swap(place[(y + h) % h][(x - 1 + w) % w], place[y][x]);
+			x = (x - 1 + w) % w;
+			update_val(goal_place, -1, 0, h, w);
+			break;
+		}
+		swap_operator[swap_operator.size() - 1].erase(swap_operator[swap_operator.size() - 1].begin() + swap_operator[swap_operator.size() - 1].size() - 1);
+		total_cost -= swap_rate;
+		swap_cnt[swap_cnt.size() - 1] -= 1;
+		if (pre_x != x || pre_y != y) {
+			x = pre_x; y = pre_y;
+			sel_cnt -= 1;
+			sellect_cost -= sel_rate;
+			total_cost -= sel_rate;
+			sel_place.erase(sel_place.begin() + sel_place.size() - 1);
+			swap_cnt.erase(swap_cnt.begin() + swap_cnt.size() - 1);
+			swap_operator.erase(swap_operator.begin() + swap_operator.size() - 1);
+		}
+	}
+
 	//表示
 	void show() {
 		printf("選択回数: %d\n", sel_cnt);
@@ -89,7 +127,7 @@ struct Status {
 				sum += dis_x + dis_y;
 			}
 		}
-		eval_cost = sum * 5;
+		eval_cost = sum;
 	}
 
 	// 差分により評価値更新
@@ -100,13 +138,13 @@ struct Status {
 		int new_x = min(abs(goal_place[place[y][x]] % (int)place[y].size() - x), (int)place[y].size() - abs(goal_place[place[y][x]] % (int)place[y].size() - x));
 		int new_y = min(abs(goal_place[place[y][x]] / (int)place[y].size() - y), (int)place[y].size() - abs(goal_place[place[y][x]] / (int)place[y].size() - y));
 		int new_dis = new_x + new_y;
-		eval_cost += (new_dis - pas_dis) * 5;
+		eval_cost += (new_dis - pas_dis);
 		pas_x = min(abs(goal_place[place[(y - dy + h) % h][(x - dx + w) % w]] % (int)place[y].size() - x), (int)place[y].size() - abs(goal_place[place[(y - dy + h) % h][(x - dx + w) % w]] % (int)place[y].size() - x));
 		pas_y = min(abs(goal_place[place[(y - dy + h) % h][(x - dx + w) % w]] / (int)place[y].size() - y), (int)place[y].size() - abs(goal_place[place[(y - dy + h) % h][(x - dx + w) % w]] / (int)place[y].size() - y));
 		pas_dis = pas_x + pas_y;
 		new_x = min(abs(goal_place[place[(y - dy + h) % h][(x - dx + w) % w]] % (int)place[y].size() - (x - dx + w) % w), (int)place[y].size() - abs(goal_place[place[(y - dy + h) % h][(x - dx + w) % w]] % (int)place[y].size() - (x - dx + w) % w));
 		new_y = min(abs(goal_place[place[(y - dy + h) % h][(x - dx + w) % w]] / (int)place[y].size() - (y - dy + h) % h), (int)place[y].size() - abs(goal_place[place[(y - dy + h) % h][(x - dx + w) % w]] / (int)place[y].size() - (y - dy + h) % h));
 		new_dis = new_x + new_y;
-		eval_cost += (new_dis - pas_dis) * 5;
+		eval_cost += (new_dis - pas_dis);
 	}
 };
