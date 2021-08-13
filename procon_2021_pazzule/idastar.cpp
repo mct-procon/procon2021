@@ -27,10 +27,6 @@ bool idastar(int depth, int count, Status status) {
 	for (int y = 0; y < h; y++) {
 		for (int x = 0; x < w; x++) {
 			for (int k = 0; k < ((search_dir)? 2 : 4); k++) {
-				if (depth == 2) {
-					int a = 0;
-					a++;
-				}
 				//“ü‚ê‘Ö‚¦•û
 				int next_x = (x + d[0][k] + w) % w, next_y = (y + d[1][k] + h) % h;
 			    int pre_x = status.x, pre_y = status.y;
