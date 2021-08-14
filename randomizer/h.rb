@@ -1,4 +1,4 @@
-#ヘッダの編集テスト
+# ヘッダの編集テスト
 
 require "rmagick"
 include Magick

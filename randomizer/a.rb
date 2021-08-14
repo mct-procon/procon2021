@@ -1,6 +1,8 @@
-#回答への返信
+# 回答への返信
+# ruby a.rb [ファイル名(拡張子なし)] で実行, 回答を入力
 
-filename = "numtest"
+filename = ARGV[0]
+ARGV.clear
 
 if not File.file?("./output/pictures/#{filename}.ppm")
     puts "Error: File is not found"
