@@ -16,7 +16,10 @@ bool idastar(int depth, int count, Status *status) {
 		answer = *status;
 		return true;
 	}
-	if (depth == 0) return 0;
+	if (depth == 0) {
+		max_depth = min(max_depth, count + status->eval_cost / 2 + ((status->eval_cost % 2 == 0) ? 0 : 1));
+		return 0;
+	}
 
 	int d[2][4] = {
 		{ 0, 1, 0, -1},
@@ -42,7 +45,7 @@ bool idastar(int depth, int count, Status *status) {
 				if (depth * 2 >= status->eval_cost)
 					clear = idastar(depth - 1, count + 1, status);
 				else
-					max_depth = min(max_depth, count + status->eval_cost / 2 + ((status->eval_cost % 2 == 0) ? 0 : 1));
+					max_depth = min(max_depth, count + 1 + status->eval_cost / 2 + ((status->eval_cost % 2 == 0) ? 0 : 1));
 				if (clear) return true;
 				status->unmove(pre_x, pre_y, h, w, sel_rate, swap_rate, goal_place);
 			}
@@ -55,7 +58,7 @@ bool idastar(int depth, int count, Status *status) {
 //ˆ—‚Ì—¬‚ê(‚±‚±‚Å‚Í”½•œ[‰»‚Ì‚Ý)
 void idastar_solve(Status *status){
 	bool clear = false;
-	for (int depth = 1; !clear; depth = max_depth) {
+	for (int depth = status->eval_cost / 2 + ((status->eval_cost % 2 == 0) ? 0 : 1); !clear; depth = max_depth) {
 		max_depth = 10000000;
 		printf("[search]depth: %d\n", depth);
 		clear = idastar(depth, 0, status);
