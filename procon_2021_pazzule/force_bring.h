@@ -1,3 +1,3 @@
 #pragma once
 
-void fb_solve(Status *status);
+void fb_solve(Status &status);

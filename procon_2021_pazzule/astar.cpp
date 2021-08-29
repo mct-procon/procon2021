@@ -10,7 +10,7 @@ extern Status answer;
 extern int h, w, sel_rate, swap_rate, sel_lim, search_dir;
 
 //A*‚É‚æ‚é’Tõ(ƒƒ‚ƒŠ‚Í‚»‚ñ‚È‚ÉH‚×‚ç‚ê‚È‚¢‚Æ—\‘ª)
-void astar_solve(Status *status) {
+void astar_solve(Status &status) {
 	int d[2][4] = {
 		{ 0, 1, 0, -1},
 		{ 1, 0, -1, 0}
@@ -27,7 +27,7 @@ void astar_solve(Status *status) {
 		vector<Status>,
 		decltype(compare)
 	> que{ compare };
-	que.push(*status);
+	que.push(status);
 
 	//’Tõ
 	bool clear = false;
@@ -43,9 +43,9 @@ void astar_solve(Status *status) {
 						continue;
 					if (sta.x != x || sta.y != y) {
 						if (sta.sel_cnt >= sel_lim) continue;
-						sta.sellect(x, y, sel_rate);
+						status_sellect(sta, x, y);
 					}
-					sta.move(d[0][k], d[1][k], h, w, swap_rate, goal_place);
+					status_move(sta, d[0][k], d[1][k]);
 					if (sta.place == complete) {
 						answer = sta;
 						clear = true;
@@ -62,6 +62,6 @@ void astar_solve(Status *status) {
 		if (clear) break;
 	}
 
-	answer.show();
-	answer.show_cost();
+	status_show(answer);
+	status_show_cost(answer);
 }

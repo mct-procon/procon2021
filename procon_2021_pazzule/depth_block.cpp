@@ -47,9 +47,9 @@ bool db_dfs(int depth, Status sta) {
 					continue;
 				if (sta.x != x || sta.y != y) {
 					if (sta.sel_cnt >= sel_lim) continue;
-					sta.sellect(x, y, sel_rate);
+					status_sellect(sta, x, y);
 				}
-				sta.move(d[0][k], d[1][k], h, w, swap_rate, goal_place);
+				status_move(sta, d[0][k], d[1][k]);
 				que.push(sta);
 				sta = backup;
 			}
@@ -66,12 +66,12 @@ bool db_dfs(int depth, Status sta) {
 	return clear;
 }
 
-void db_solve(Status *status) {
+void db_solve(Status &status) {
 	bool clear = false;
-	best_ans = *status;
+	best_ans = status;
 	while (!clear) {
 		clear = db_dfs(10, best_ans);
 	}
-	answer.show();
-	answer.show_cost();
+	status_show(answer);
+	status_show_cost(answer);
 }

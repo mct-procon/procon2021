@@ -1,4 +1,3 @@
 #pragma once
 
-
-void ow_solve(Status* ans);
+void ow_solve(Status &ans);

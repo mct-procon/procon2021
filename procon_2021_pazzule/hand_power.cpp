@@ -2,25 +2,27 @@
 #include <vector>
 #include <conio.h>
 #include "status.h"
+#include "lib.h"
+
 using namespace std;
 extern vector<vector<unsigned char> > complete;
 extern vector<int> goal_place;
 extern int px, py, h, w, move_style, sel_or_swap, sel_rate, swap_rate, sel_lim;
 extern Status answer;
 //画像の入れ替え処理
-void move(Status *status, int dx, int dy) {
+void move(Status &status, int dx, int dy) {
 	if (sel_or_swap)
-		status->move(dx, dy, h, w, swap_rate, goal_place);
+		status_move(status, dx, dy);
 
     px = (px + dx + w) % w; py = (py + dy + h) % h;
 }
 
 //表示
-void show(vector<vector<unsigned char> > *place) {
+void show(vector<vector<unsigned char> > &place) {
 	system("cls");
-	for (unsigned int y = 0; y < place->size(); y++) {
-		for (unsigned int x = 0; x < (*place)[0].size(); x++)
-			printf("%2x  ", (*place)[y][x]);
+	for (int y = 0; y < h; y++) {
+		for (int x = 0; x < w; x++)
+			printf("%2x  ", place[y][x]);
 
 		if (py == y)
 			cout << "←";
@@ -32,7 +34,7 @@ void show(vector<vector<unsigned char> > *place) {
 
 
 //手動のパズル
-void hand_puzzle(Status* status) {
+void hand_puzzle(Status &status) {
 	if (_kbhit()) {
 		int pre_x = px, pre_y = py;
 		int d[2][4] = {
@@ -55,7 +57,7 @@ void hand_puzzle(Status* status) {
 			break;
 		case 'g':
 			if (!(sel_or_swap))
-				status->sellect(px, py, sel_rate);
+				status_sellect(status, px, py);
 			sel_or_swap ^= 1;
 			break;
 		}
@@ -66,16 +68,16 @@ void hand_puzzle(Status* status) {
 }
 
 //人力操作の処理の流れ
-void hand_solve(Status* status) {
-	status->x = 0; status->y = 0;
+void hand_solve(Status &status) {
+	status.x = 0; status.y = 0;
 	while (1) {
-		if (status->place == complete) {
-			answer = *status;
+		if (status.place == complete) {
+			answer = status;
 			break;
 		}
-		show(&status->place);
-		status->show();
-		status->show_cost();
+		show(status.place);
+		status_show(status);
+		status_show_cost(status);
 		hand_puzzle(status);
 	}
 }
