@@ -27,7 +27,7 @@ int main() {
     Status init_status;
 
 	//入力
-	input(&table);
+	input(table);
 
 	//回答用データ初期化
 	status_init(init_status, -1, -1);

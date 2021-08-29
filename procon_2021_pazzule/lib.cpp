@@ -10,7 +10,7 @@ extern vector<vector<unsigned char> > complete;
 extern vector<int> goal_place;
 extern int h, w, sel_rate, swap_rate, sel_lim, search_dir, move_style;
 
-void input(vector<vector<int> > *table) {
+void input(vector<vector<int> > &table) {
 	int target_i;
 
 	//“ü—Í‚ğó‚¯æ‚é
@@ -28,9 +28,9 @@ void input(vector<vector<int> > *table) {
 	cin >> move_style;
 	cout << "ˆÚ“®•ûŒü(0: ‘S•ûŒü 1:‰E‚Æ‰º)>";
 	cin >> search_dir;
-	table->resize(h);
+	table.resize(h);
 	for (int i = 0; i < h; i++)
-		(*table)[i].resize(w);
+		table[i].resize(w);
 	complete.resize(h);
 	for (int i = 0; i < h; i++)
 		complete[i].resize(w);
@@ -74,7 +74,7 @@ void input(vector<vector<int> > *table) {
 	//•ªŠ„‚³‚ê‚½‰æ‘œ‚É”Ô†‚ğ‚Â‚¯‚é
 	for (int i = 0; i < h; i++)
 		for (int j = 0; j < w; j++)
-			(*table)[i][j] = i * w + j;
+			table[i][j] = i * w + j;
 }
 
 void show_table(vector<vector<int> > table) {

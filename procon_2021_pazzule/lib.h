@@ -1,7 +1,7 @@
 #pragma once
 
 void show_table(vector<vector<int> > table);
-void input(vector<vector<int> > *table);
+void input(vector<vector<int> > &table);
 void status_init(Status& sta, int _x, int _y);
 void status_sellect(Status& sta, int _x, int _y);
 void status_move(Status& sta, int dx, int dy);
