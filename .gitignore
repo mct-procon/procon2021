@@ -366,3 +366,6 @@ FodyWeavers.xsd
 procon_2021_pazzule.sln
 procon_2021_pazzule/procon_2021_pazzule.vcxproj
 procon_2021_pazzule/procon_2021_pazzule.vcxproj.filters
+
+# input用ファイル
+input.txt
