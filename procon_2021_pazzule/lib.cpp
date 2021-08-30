@@ -214,12 +214,12 @@ void status_show_cost(Status &sta) {
 	printf("選択コスト: %d\n", sta.sellect_cost);
 }
 
-void status_sub_for(Status &sta) {
-	printf("%d\n", sta.sel_cnt);
-	for (int i = 0; i < sta.sel_cnt; i++) {
-		printf("%x%x\n", sta.sel_place[i] % w, sta.sel_place[i] / w);
-		printf("%d\n", sta.swap_cnt[i]);
-		cout << sta.swap_operator[i] << endl;
+void status_sub_for() {
+	printf("%d\n", answer.sel_cnt);
+	for (int i = 0; i < answer.sel_cnt; i++) {
+		printf("%x%x\n", answer.sel_place[i] % w, answer.sel_place[i] / w);
+		printf("%d\n", answer.swap_cnt[i]);
+		cout << answer.swap_operator[i] << endl;
 	}
 }
 
