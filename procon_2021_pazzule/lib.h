@@ -16,3 +16,4 @@ void status_update_val(Status& sta, int dx, int dy);
 #define ASTAR 2
 #define FB 3
 #define DB 4
+#define OW 5

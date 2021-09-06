@@ -50,6 +50,9 @@ int main() {
 	case DB:
 		db_solve(init_status);
 		break;
+	case OW:
+		ow_solve(init_status);
+		break;
 	}
 	cout << endl;
 	show_table(table);
