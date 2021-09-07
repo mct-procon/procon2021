@@ -24,7 +24,7 @@ void input(vector<vector<int> > &table) {
 	cin >> swap_rate;
 	cout << "選択回数制限(2～128)>";
 	cin >> sel_lim;
-	cout << "パズル手法(0:手動   1:IDA*   2:A*   3:強制移動　4:深さの塊　5:一筆書き)>";
+	cout << "パズル手法(0:手動   1:IDA*   2:A*   3:強制移動　4:深さの塊　5:一筆書き　6:A*_2nd)>";
 	cin >> move_style;
 	cout << "移動方向(0: 全方向 1:右と下)>";
 	cin >> search_dir;

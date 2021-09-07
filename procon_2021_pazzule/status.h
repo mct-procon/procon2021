@@ -11,4 +11,7 @@ struct Status {
 	int eval_cost = 0; //評価値
 	int total_cost = 0;  //総コスト
 	int sellect_cost = 0;  //選択コスト
+
+	/*astar_2nd用*/
+	bool sellected = 0;
 };

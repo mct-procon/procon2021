@@ -15,6 +15,7 @@
 #include "force_bring.h"
 #include "depth_block.h"
 #include "one_wrote.h"
+#include "astar_2nd.h"
 using namespace std;
 
 vector<vector<unsigned char> > complete;
@@ -52,6 +53,9 @@ int main() {
 		break;
 	case OW:
 		ow_solve(init_status);
+		break;
+	case ASTAR_2:
+		astar2_solve(init_status);
 		break;
 	}
 	cout << endl;
