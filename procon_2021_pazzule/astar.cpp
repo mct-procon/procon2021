@@ -61,7 +61,4 @@ void astar_solve(Status &status) {
 		}
 		if (clear) break;
 	}
-
-	status_show(answer);
-	status_show_cost(answer);
 }

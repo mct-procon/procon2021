@@ -399,6 +399,4 @@ void ow_solve(Status &status) {
 		rota_last(status, -1, true);
 
 	answer = status;
-	status_show(answer);
-	status_show_cost(answer);
 }

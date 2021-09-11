@@ -58,8 +58,14 @@ int main() {
 		astar2_solve(init_status);
 		break;
 	}
+
+#ifdef DEBUG
 	cout << endl;
 	show_table(table);
+
+	status_show(answer);
+	status_show_cost(answer);
+#endif
 	cout << endl;
 	status_sub_for();
 	return 0;

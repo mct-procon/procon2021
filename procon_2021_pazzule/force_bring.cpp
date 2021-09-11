@@ -39,7 +39,4 @@ void fb_solve(Status &status) {
 		}
 	}
 	answer = status;
-
-	status_show(status);
-	status_show_cost(status);
 }

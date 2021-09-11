@@ -72,6 +72,4 @@ void db_solve(Status &status) {
 	while (!clear) {
 		clear = db_dfs(10, best_ans);
 	}
-	status_show(answer);
-	status_show_cost(answer);
 }

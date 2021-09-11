@@ -63,6 +63,4 @@ void idastar_solve(Status &status){
 		printf("[search]depth: %d\n", depth);
 		clear = idastar(depth, 0, status);
 	}
-	status_show(answer);
-	status_show_cost(answer);
 }

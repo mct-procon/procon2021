@@ -79,7 +79,4 @@ void astar2_solve(Status &status) {
 			}
 		}
 	}
-
-	status_show(answer);
-	status_show_cost(answer);
 }
