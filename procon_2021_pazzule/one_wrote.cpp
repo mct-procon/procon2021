@@ -97,6 +97,10 @@ void avoid_bad_case(Status &status, vector<int> &cur_pos, int x, int y) {
 		cur_pos[status.place[status.y][status.x]] += w;
 	}
 
+	if (status.place[y + 1][w - 2] == complete[y][w - 2] && ((status.x == x && status.y == y) || (status.x == x + 1 && status.y == y))) {
+		move_place(status, cur_pos, w - 1, y + 1, x, y, w - 2, y + 1);
+	}
+
 	if (status.place[y][w - 2] == complete[y][w - 2] && status.place[y + 1][w - 2] == complete[y][w - 1]) {
 		move_place(status, cur_pos, w - 3, y + 1, x, y, w - 2, y + 1);
 		cur_pos[status.place[status.y][status.x + 1]] -= 1;
@@ -117,7 +121,7 @@ void avoid_bad_case(Status &status, vector<int> &cur_pos, int x, int y) {
 	}
 
 	if (status.place[y][w - 1] == complete[y][w - 1] && status.place[y + 1][w - 1] == complete[y][w - 2]) {
-		move_place(status, cur_pos, w - 1, y + 2, x, y, w - 1, w - 1);
+		move_place(status, cur_pos, w - 1, y + 2, x, y, w - 1, y + 1);
 		cur_pos[status.place[status.y - 1][status.x]] -= -w;
 		status_move(status, 0, -1);
 		cur_pos[status.place[status.y][status.x]] += -w;
@@ -198,7 +202,7 @@ void avoid_bad_case2(Status &status, vector<int> &cur_pos, int x, int y) {
 		cur_pos[status.place[status.y][status.x]] += -1;
 	}
 	if (status.place[h - 2][x] == complete[h - 2][x]) {
-		move_place(status, cur_pos, x, h - 1, x, y, cur_pos[status.place[h - 1][x]] % w, cur_pos[status.place[h - 1][x]] / w);
+		move_place(status, cur_pos, x, h - 1, x, y, x, h - 2);
 		cur_pos[status.place[status.y - 1][status.x]] -= -w;
 		status_move(status, 0, -1);
 		cur_pos[status.place[status.y][status.x]] += -w;
@@ -272,6 +276,7 @@ void ow_solve(Status &status) {
 		for (int x = 0; x < w; x++) {
 			int i, dx;
 			int edge = (x == w - 1) ? 1 : 0; // í[Ç¡Ç±óp
+
 
 			// i => ìÆÇ©ÇµÇΩÇ¢êîéöÇÃåªç›ín
 			if (x < w - 2) {
