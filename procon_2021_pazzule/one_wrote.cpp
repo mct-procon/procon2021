@@ -176,6 +176,11 @@ void avoid_bad_case2(Status &status, vector<int> &cur_pos, int x, int y) {
 		}
 	}
 
+	if (status.place[h - 2][x + 1] == complete[h - 1][x] && status.place[h - 1][x] == complete[h - 2][x] && status.x == x && status.y == h - 2) {
+		cur_pos[status.place[status.y + 1][status.x]] -= w;
+		status_move(status, 0, 1);
+		cur_pos[status.place[status.y][status.x]] += w;
+	}
 	if (status.place[h - 2][x] == complete[h - 1][x] && status.place[h - 1][x + 1] == complete[h - 2][x] && status.x == x && status.y == h - 1) {
 		cur_pos[status.place[status.y - 1][status.x]] -= -w;
 		status_move(status, 0, -1);
