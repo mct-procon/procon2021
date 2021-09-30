@@ -317,7 +317,7 @@ state search(const vector<piece>& pieces, const int16& div_x, const int16& div_y
 	return ans;
 }
 
-bool output(const state& ans, const int& board_size_x, const int& board_size_y, const int& div_x, const int& div_y) {
+bool output(const state& ans, const int& board_size_x, const int& board_size_y, const int& div_x, const int& div_y, const int& select_lim, const int& select_cost, const int& swap_cost) {
 	int ox = -1, oy = -1;
 	for (int y = 0; y < board_size_y; y++) {
 		for (int x = 0; x < board_size_x; x++) {
@@ -347,6 +347,8 @@ bool output(const state& ans, const int& board_size_x, const int& board_size_y, 
 	FILE* fp;
 	fp = fopen("output.txt", "w");
 	fprintf(fp, "%d %d\n", div_y, div_x);
+	fprintf(fp, "%d\n", select_lim);
+	fprintf(fp, "%d %d\n", select_cost, swap_cost);
 	for (int y = 0; y < div_y; y++) {
 		for (int x = 0; x < div_x; x++) {
 			if (x > 0) fprintf(fp, " ");
@@ -364,6 +366,8 @@ bool output(const state& ans, const int& board_size_x, const int& board_size_y, 
 	fclose(fp);
 	fp = fopen("output2.txt", "w");
 	fprintf(fp, "%d %d\n", div_y, div_x);
+	fprintf(fp, "%d\n", select_lim);
+	fprintf(fp, "%d %d\n", select_cost, swap_cost);
 	for (int y = 0; y < div_y; y++) {
 		for (int x = 0; x < div_x; x++) {
 			if (x > 0) fprintf(fp, " ");
@@ -415,7 +419,7 @@ void Main() {
 		if (KeyS.pressed())
 			ay -= 2;
 		if (KeySpace.down()) {
-			if (output(ans, board_size_x, board_size_y, pic.div_x, pic.div_y))
+			if (output(ans, board_size_x, board_size_y, pic.div_x, pic.div_y, pic.select_lim, pic.select_cost, pic.swap_cost))
 				Print << U"Output succeeded";
 			else
 				Print << U"Output failed";
