@@ -410,6 +410,8 @@ void Main() {
 	int selx = -1, sely = -1;
 	int wheel, shift;
 	while (System::Update()) {
+		if (KeyEscape.pressed())
+			System::Exit();
 		if (KeyA.pressed())
 			ax += 2;
 		if (KeyD.pressed())
