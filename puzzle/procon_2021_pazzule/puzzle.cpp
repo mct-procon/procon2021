@@ -38,38 +38,41 @@ int main() {
 	status_init(init_status, -1, -1);
 
 	//ƒpƒYƒ‹
-	int clear = 0;
-	switch (move_style) {
-	case HAND:
-		hand_solve(init_status);
-		break;
-	case IDAS:
-		idastar_solve(init_status);
-		break;
-	case ASTAR:
-		astar_solve(init_status);
-		break;
-	case FB:
-		fb_solve(init_status);
-		break;
-	case DB:
-		db_solve(init_status);
-		break;
-	case OW:
-		ow_solve(init_status);
-		break;
-	case IDASD:
-		idastar_D_solve(init_status);
-		break;
-	case DFS_OW:
-		dfs_solve(init_status);
-		break;
-	case SHORTCUT:
-		shortcut_solve(init_status);
-		break;
+	if (complete != init_status.place) {
+		int clear = 0;
+		switch (move_style) {
+		case HAND:
+			hand_solve(init_status);
+			break;
+		case IDAS:
+			idastar_solve(init_status);
+			break;
+		case ASTAR:
+			astar_solve(init_status);
+			break;
+		case FB:
+			fb_solve(init_status);
+			break;
+		case DB:
+			db_solve(init_status);
+			break;
+		case OW:
+			ow_solve(init_status);
+			break;
+		case IDASD:
+			idastar_D_solve(init_status);
+			break;
+		case DFS_OW:
+			dfs_solve(init_status);
+			break;
+		case SHORTCUT:
+			shortcut_solve(init_status);
+			break;
+		}
 	}
+
 	cout << endl;
-	//show_table(table);
+	show_table(table);
 	cout << endl;
 	status_sub_for();
 	return 0;

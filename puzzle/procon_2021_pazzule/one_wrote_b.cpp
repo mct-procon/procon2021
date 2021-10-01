@@ -299,18 +299,15 @@ void ow_solve(Status &status) {
 				if (i % w == x && i / w == y) continue;
 			}
 			else if (x == w - 2) {
-				if (cur_pos[complete[y][x]] % w == x && cur_pos[complete[y][x]] / w == y && cur_pos[complete[y][x + 1]] % w == x + 1 && cur_pos[complete[y][x + 1]] / w == y) continue;
-				if (cur_pos[complete[y][x]] % w == x && cur_pos[complete[y][x]] / w == y + 1 && cur_pos[complete[y][x + 1]] % w == x && cur_pos[complete[y][x + 1]] / w == y) continue;
+
 				avoid_bad_case(status, cur_pos, x, y);
 				i = cur_pos[complete[y][w - 1]];
 				if (cur_pos[complete[y][x]] % w == x && cur_pos[complete[y][x]] / w == y && cur_pos[complete[y][x + 1]] % w == x + 1 && cur_pos[complete[y][x + 1]] / w == y) continue;
-				if (cur_pos[complete[y][x]] % w == x && cur_pos[complete[y][x]] / w == y + 1 && cur_pos[complete[y][x + 1]] % w == x && cur_pos[complete[y][x + 1]] / w == y) continue;
-
 			}
 			else if (x == w - 1) {
 				i = cur_pos[complete[y][w - 2]];
 				if (i % w == x - 1 && i / w == y + 1) continue;
-				if (cur_pos[complete[y][x]] % w == x && cur_pos[complete[y][x]] / w == y && cur_pos[complete[y][x - 1]] % w == x - 1 && cur_pos[complete[y][x - 1]] / w == y) continue;
+				if (cur_pos[complete[y][x]] % w == x && cur_pos[complete[y][x]] / w == y && cur_pos[complete[y][x + 1]] % w == x + 1 && cur_pos[complete[y][x + 1]] / w == y) continue;
 			}
 
 			// ó◊ÇËÇ…çsÇ≠
@@ -376,20 +373,11 @@ void ow_solve(Status &status) {
 		for (int y = h - 2; y < h; y++) {
 			int i, pre = (y == h - 1)?1:0;
 
-			if (y == h - 2) {
-				if (cur_pos[complete[y + 1][x]] % w == x && cur_pos[complete[y + 1][x]] / w == y && cur_pos[complete[y][x]] % w == x + 1 && cur_pos[complete[y][x]] / w == y) continue; // èâÇﬂÇ©ÇÁèÄîıÇ™äÆóπÇµÇƒÇ¢ÇÈÇ∆Ç´
-				if (cur_pos[complete[y][x]] % w == x && cur_pos[complete[y][x]] / w == y && cur_pos[complete[y + 1][x]] % w == x && cur_pos[complete[y + 1][x]] / w == y + 1) continue; // èâÇﬂÇ©ÇÁÇªÇÎÇ¡ÇƒÇÈÇ∆Ç´
+			if (y == h - 2)
 				avoid_bad_case2(status, cur_pos, x, y);
-				i = cur_pos[complete[h - 1][x]];
-			    if (cur_pos[complete[y][x]] % w == x && cur_pos[complete[y][x]] / w == y && cur_pos[complete[y + 1][x]] % w == x && cur_pos[complete[y + 1][x]] / w == y + 1) continue; // èâÇﬂÇ©ÇÁÇªÇÎÇ¡ÇƒÇÈÇ∆Ç´
-				if (cur_pos[complete[y + 1][x]] % w == x && cur_pos[complete[y + 1][x]] / w == y && cur_pos[complete[y][x]] % w == x + 1 && cur_pos[complete[y][x]] / w == y) continue; // èâÇﬂÇ©ÇÁèÄîıÇ™äÆóπÇµÇƒÇ¢ÇÈÇ∆Ç´
-			}
-			else {
-				i = cur_pos[complete[h - 2][x]];
-				if (cur_pos[complete[y][x]] % w == x && cur_pos[complete[y][x]] / w == y && cur_pos[complete[y - 1][x]] % w == x && cur_pos[complete[y - 1][x]] / w == y - 1) continue; // èâÇﬂÇ©ÇÁÇªÇÎÇ¡ÇƒÇÈÇ∆Ç´
-			}
 
-
+			if (y == h - 2) i = cur_pos[complete[h - 1][x]];
+			else i = cur_pos[complete[h - 2][x]];
 
 			// è„â∫ÇÇªÇÎÇ¶ÇÈ
 			if (i / w == h - 1) {
