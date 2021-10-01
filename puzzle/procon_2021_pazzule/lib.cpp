@@ -263,24 +263,32 @@ void status_sub_for() {
 	//FILE* fp;
 	//fopen_s(&fp, "submit.txt", "w");
 	ofstream outfile("submit.txt");
+	cout << uppercase;
+	outfile << uppercase;
 	for (int i = 0; i < h * w; i++) {
 		//fprintf_s(fp, "%d", spin[i]);
+		cout << spin[i];
 		outfile << spin[i];
 	}
 	//fprintf_s(fp, "\n");
+	cout << endl;
 	outfile << endl;
-	printf("%d\n", answer.sel_cnt);
+	//printf("%d\n", answer.sel_cnt);
 	//fprintf_s(fp, "%d\n", answer.sel_cnt);
+	cout << (int)answer.sel_cnt << endl;
 	outfile << (int)answer.sel_cnt << endl;
 	for (int i = 0; i < answer.sel_cnt; i++) {
-		printf("%x%x\n", answer.sel_place[i] % w, answer.sel_place[i] / w);
+		//printf("%x%x\n", answer.sel_place[i] % w, answer.sel_place[i] / w);
 		//fprintf_s(fp, "%x%x\n", answer.sel_place[i] % w, answer.sel_place[i] / w);
+		cout << hex << answer.sel_place[i] % w << answer.sel_place[i] / w << endl;
 		outfile << hex << answer.sel_place[i] % w << answer.sel_place[i] / w << endl;
-		printf("%d\n", answer.swap_cnt[i]);
+		//printf("%d\n", answer.swap_cnt[i]);
 		//fprintf_s(fp, "%d\n", answer.swap_cnt[i]);
+		cout << dec << answer.swap_cnt[i] << endl;
 		outfile << dec << answer.swap_cnt[i] << endl;
-		cout << answer.swap_operator[i] << endl;
+
 		//fprintf_s(fp, "%s\n", answer.swap_operator[i]);
+		cout << answer.swap_operator[i] << endl;
 		outfile << answer.swap_operator[i] << endl;
 	}
 	//fclose(fp);
