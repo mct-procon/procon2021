@@ -2,6 +2,7 @@
 #include <vector>
 #include <queue>
 #include <utility>
+#include <cassert>
 #include "status.h"
 #include "lib.h"
 #define abs(x) ((x > 0)? x : -x)
@@ -18,7 +19,7 @@ namespace {
 		vector<vector<int> > table(h, vector<int>(w, 256));
 		vector<int> route;
 		priority_queue<pair<int, int> > q;
-		int dx[4] = { 0, 1, 0, -1 }, dy[4] = { 1, 0, -1, 0 }, nx = px, ny = py, x, i;
+		int dx[4] = { 0, 1, 0, -1 }, dy[4] = { 1, 0, -1, 0 }, nx = px, ny = py, i;
 
 		// 探索
 		q.push({ abs(px - status.x) + abs(py - status.y), status.x + status.y * w });
@@ -245,9 +246,10 @@ namespace {
 			}
 
 			if (sta.x == w - 2 && sta.y == h - 2) d = (r == 1) ? 0 : 1;
-			if (sta.x == w - 1 && sta.y == h - 2) d = (r == 1) ? 1 : 2;
-			if (sta.x == w - 2 && sta.y == h - 1) d = (r == 1) ? 3 : 0;
-			if (sta.x == w - 1 && sta.y == h - 1) d = (r == 1) ? 2 : 3;
+			else if (sta.x == w - 1 && sta.y == h - 2) d = (r == 1) ? 1 : 2;
+			else if (sta.x == w - 2 && sta.y == h - 1) d = (r == 1) ? 3 : 0;
+			else if (sta.x == w - 1 && sta.y == h - 1) d = (r == 1) ? 2 : 3;
+			else assert(false);
 			status_move(sta, dx[d], dy[d]);
 		}
 
@@ -264,9 +266,10 @@ namespace {
 			}
 
 			if (sta.x == w - 2 && sta.y == h - 2) d = (r == 1) ? 0 : 1;
-			if (sta.x == w - 1 && sta.y == h - 2) d = (r == 1) ? 1 : 2;
-			if (sta.x == w - 2 && sta.y == h - 1) d = (r == 1) ? 3 : 0;
-			if (sta.x == w - 1 && sta.y == h - 1) d = (r == 1) ? 2 : 3;
+			else if (sta.x == w - 1 && sta.y == h - 2) d = (r == 1) ? 1 : 2;
+			else if (sta.x == w - 2 && sta.y == h - 1) d = (r == 1) ? 3 : 0;
+			else if (sta.x == w - 1 && sta.y == h - 1) d = (r == 1) ? 2 : 3;
+			else assert(false);
 			status_move(sta, dx[d], dy[d]);
 			res++;
 		}
@@ -274,16 +277,22 @@ namespace {
 		return res;
 	}
 
+	// これより上↑はone_wrote.cppそのまま
 }
 
+// 値を実際に変える必要はないので値渡し
 // 右下のものを持って、左上から合わせていく
-void ow_solve(Status &status) {
+int ow_solve_eval(Status status, bool to_ans) {
 	vector<int> cur_pos(h * w);
 	for (int i = 0; i < h * w; i++) {
 		cur_pos[i] = i;
 	}
-	// 初期状態だから右下にあるやつが分かる
-	status_sellect(status, complete[h - 1][w - 1] % w, complete[h - 1][w - 1] / w);
+	
+	// 初期状態は無理矢理右下行きのを持たせる
+	int goal = complete[h - 1][w - 1];
+	if (status.sel_cnt == 0 || status.sel_place[status.sel_cnt - 1] != complete[h - 1][w - 1]) {
+		status_sellect(status, status.replace[goal] % w, status.replace[goal] / w);
+	}
 
 	// そろえたい数字=>complete[y][x] その数字の現在地=>cur_pos[complete[y][x]] 目標=>cur_pos[complete[y][x]] == y * w + x
 	// 下2列以外
@@ -364,14 +373,14 @@ void ow_solve(Status &status) {
 					cur_pos[status.place[status.y][status.x]] += w;
 				}
 			}
-			
+
 		}
 	}
 
 	// 下2列
 	for (int x = 0; x < w - 2; x++) {
 		for (int y = h - 2; y < h; y++) {
-			int i, pre = (y == h - 1)?1:0;
+			int i, pre = (y == h - 1) ? 1 : 0;
 
 			if (y == h - 2)
 				avoid_bad_case2(status, cur_pos, x, y);
@@ -418,5 +427,8 @@ void ow_solve(Status &status) {
 	else
 		rota_last(status, -1);
 
-	answer = status;
+	if(to_ans)
+		answer = status;
+
+	return status.total_cost;
 }

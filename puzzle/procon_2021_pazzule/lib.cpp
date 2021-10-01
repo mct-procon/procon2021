@@ -1,6 +1,9 @@
 #include <iostream>
 #include <vector>
 #include <time.h>
+#include<assert.h>
+#include<algorithm>
+#include <fstream>
 #include "status.h"
 #include "lib.h"
 using namespace std;
@@ -9,11 +12,19 @@ extern Status answer;
 extern vector<vector<unsigned char> > complete;
 extern vector<int> goal_place;
 extern int h, w, sel_rate, swap_rate, sel_lim, search_dir, move_style;
+extern vector<int> spin;
 
 void input(vector<vector<int> > &table) {
 	int target_i;
 
 	//入力を受け取る
+	cout << "パズル手法(0:手動   1:IDA*   2:A*   3:強制移動　4:深さの塊　5:一筆書き　6:一筆IDA*　7:DFS一筆　8:ShortCut)>";
+	cin >> move_style;
+	cout << "移動方向(0: 全方向 1:右と下)>";
+	cin >> search_dir;
+	cout << "目標画像(0: 指定   1: ランダム)>";
+	cin >> target_i;
+
 	cout << "縦の分割数(2～16)>";
 	cin >> h;
 	cout << "横の分割数(2～16)>";
@@ -24,10 +35,16 @@ void input(vector<vector<int> > &table) {
 	cin >> swap_rate;
 	cout << "選択回数制限(2～128)>";
 	cin >> sel_lim;
-	cout << "パズル手法(0:手動   1:IDA*   2:A*   3:強制移動　4:深さの塊)>";
-	cin >> move_style;
-	cout << "移動方向(0: 全方向 1:右と下)>";
-	cin >> search_dir;
+	spin.resize(h * w, 0);
+	cout << "回転情報(なければ -1)>";
+	for (int i = 0; i < h * w; i++) {
+		cin >> spin[i];
+		if (spin[i] == -1) {
+			spin[i] = 0;
+			break;
+		}
+	}
+
 	table.resize(h);
 	for (int i = 0; i < h; i++)
 		table[i].resize(w);
@@ -35,15 +52,16 @@ void input(vector<vector<int> > &table) {
 	for (int i = 0; i < h; i++)
 		complete[i].resize(w);
 
-	cout << "目標画像(0: 指定   1: ランダム)>";
-	cin >> target_i;
 	switch (target_i) {
 	case 0:
-		for (int y = 0; y < h; y++)
+		cout << "目標画像>";
+		for (int y = 0; y < h; y++) {
 			for (int x = 0; x < w; x++) {
-				int num; cin >> num;
-				complete[y][x] = num;
+				int num;
+				cin >> num;
+				complete[num / w][num % w] = y*w + x;
 			}
+		}
 		break;
 	case 1:
 		vector<int> remain(h * w, 1);
@@ -115,6 +133,20 @@ void show_table(vector<vector<int> > table) {
 				}
 				cout << endl;
 			}
+			//差分を表示
+			for (int y = 0; y < h; y++) {
+				for (int x = 0; x < w; x++) {
+					int dist = 0;
+					for (int yy = 0; yy < h; yy++) {
+						for (int xx = 0; xx < w; xx++) {
+							if (table[y][x] == complete[yy][xx])
+								dist = (yy != y) + (xx != x);
+						}
+					}
+					printf("%2x ", dist);
+				}
+				cout << endl;
+			}
 		}
 	}
 }
@@ -124,12 +156,16 @@ void status_init(Status &sta, int _x, int _y) {
 	sta.place.resize(h);
 	for (int i = 0; i < h; i++)
 		sta.place[i].resize(w);
+	sta.replace.resize(h * w);
 
 	for (int i = 0; i < h; i++)
-		for (int j = 0; j < w; j++)
+		for (int j = 0; j < w; j++) {
 			sta.place[i][j] = i * w + j;
+			sta.replace[i * w + j] = i * w + j;
+		}
 
 	sta.x = _x; sta.y = _y;
+	sta.array_size = h * w;
 	status_calc_val(sta);
 }
 
@@ -145,6 +181,22 @@ void status_sellect(Status &sta, int _x, int _y) {
 	sta.swap_cnt[sta.swap_cnt.size() - 1] = 0;
 	sta.swap_operator.resize(sta.swap_operator.size() + 1);
 	sta.swap_operator[sta.swap_operator.size() - 1] = "";
+
+	sta.compare_cost += sel_rate;
+}
+
+void status_unsellect(Status& sta, int pre_x, int pre_y) {
+	sta.sel_cnt -= 1;
+	sta.sellect_cost -= sel_rate;
+	sta.total_cost -= sel_rate;
+	sta.compare_cost -= sel_rate;
+	sta.sel_place.pop_back();
+	assert(sta.swap_cnt[sta.swap_cnt.size() - 1] == 0);
+	sta.swap_cnt.pop_back();
+	assert(sta.swap_operator[sta.sel_cnt] == "");
+	sta.swap_operator.pop_back();
+	sta.x = pre_x;
+	sta.y = pre_y;
 }
 
 
@@ -157,46 +209,39 @@ void status_move(Status& sta, int dx, int dy) {
 	if (dy == 1) sta.swap_operator[sta.swap_operator.size() - 1] += "D";
 	if (dx == 1) sta.swap_operator[sta.swap_operator.size() - 1] += "R";
 	swap(sta.place[(sta.y + dy + h) % h][(sta.x + dx + w) % w], sta.place[sta.y][sta.x]);
+	swap(sta.replace[sta.place[(sta.y + dy + h) % h][(sta.x + dx + w) % w]], sta.replace[sta.place[sta.y][sta.x]]);
 	sta.x = (sta.x + dx + w) % w; sta.y = (sta.y + dy + h) % h;
 	status_update_val(sta, dx, dy);
+
 }
 
+
 //戻す
-void status_unmove(Status& sta, int pre_x, int pre_y) {
-	switch (sta.swap_operator[sta.swap_operator.size() - 1][sta.swap_operator[sta.swap_operator.size() - 1].size() - 1]) {
-	case 'U':
-		swap(sta.place[(sta.y + 1 + h) % h][(sta.x + w) % w], sta.place[sta.y][sta.x]);
-		sta.y = (sta.y + 1 + h) % h;
-		status_update_val(sta, 0, 1);
-		break;
-	case 'L':
-		swap(sta.place[(sta.y + h) % h][(sta.x + 1 + w) % w], sta.place[sta.y][sta.x]);
-		sta.x = (sta.x + 1 + w) % w;
-		status_update_val(sta, 1, 0);
-		break;
-	case 'D':
-		swap(sta.place[(sta.y - 1 + h) % h][(sta.x + w) % w], sta.place[sta.y][sta.x]);
-		sta.y = (sta.y - 1 + h) % h;
-		status_update_val(sta, 0, -1);
-		break;
-	case 'R':
-		swap(sta.place[(sta.y + h) % h][(sta.x - 1 + w) % w], sta.place[sta.y][sta.x]);
-		sta.x = (sta.x - 1 + w) % w;
-		status_update_val(sta, -1, 0);
-		break;
+void status_unmove(Status& sta) {
+	sta.total_cost -= swap_rate;	//status_update_valで使うので先に
+	
+	int swap_op_last = sta.sel_cnt - 1;
+
+	if(sta.last_swap_dir & 1){	//右か左かに動かした
+		int dx = (1 - (sta.last_swap_dir & 2));
+		int prev_x = (sta.x - dx + w) % w;
+		swap(sta.place[sta.y][prev_x], sta.place[sta.y][sta.x]);
+		swap(sta.replace[sta.place[sta.y][prev_x]], sta.replace[sta.place[sta.y][sta.x]]);
+		sta.x = prev_x;
+		status_update_val(sta, -dx, 0);
 	}
-	sta.swap_operator[sta.swap_operator.size() - 1].erase(sta.swap_operator[sta.swap_operator.size() - 1].begin() + sta.swap_operator[sta.swap_operator.size() - 1].size() - 1);
-	sta.total_cost -= swap_rate;
-	sta.swap_cnt[sta.swap_cnt.size() - 1] -= 1;
-	if (pre_x != sta.x || pre_y != sta.y) {
-		sta.x = pre_x; sta.y = pre_y;
-		sta.sel_cnt -= 1;
-		sta.sellect_cost -= sel_rate;
-		sta.total_cost -= sel_rate;
-		sta.sel_place.erase(sta.sel_place.begin() + sta.sel_place.size() - 1);
-		sta.swap_cnt.erase(sta.swap_cnt.begin() + sta.swap_cnt.size() - 1);
-		sta.swap_operator.erase(sta.swap_operator.begin() + sta.swap_operator.size() - 1);
+	else {	//上か下かに動かした
+		int dy = (1 - (sta.last_swap_dir & 2));
+		int prev_y = (sta.y - dy + h) % h;
+		swap(sta.place[prev_y][sta.x], sta.place[sta.y][sta.x]);
+		swap(sta.replace[sta.place[prev_y][sta.x]], sta.replace[sta.place[sta.y][sta.x]]);
+		sta.y = prev_y;
+		status_update_val(sta, 0, -dy);
 	}
+
+	//sta.swap_operator[swap_op_last].erase(sta.swap_operator[swap_op_last].begin() + sta.swap_operator[swap_op_last].size() - 1);
+	sta.swap_operator[swap_op_last].pop_back();
+	sta.swap_cnt[sta.swap_cnt.size() - 1]--;
 }
 
 //表示
@@ -215,42 +260,150 @@ void status_show_cost(Status &sta) {
 }
 
 void status_sub_for() {
+	//FILE* fp;
+	//fopen_s(&fp, "submit.txt", "w");
+	ofstream outfile("submit.txt");
+	for (int i = 0; i < h * w; i++) {
+		//fprintf_s(fp, "%d", spin[i]);
+		outfile << spin[i];
+	}
+	//fprintf_s(fp, "\n");
+	outfile << endl;
 	printf("%d\n", answer.sel_cnt);
+	//fprintf_s(fp, "%d\n", answer.sel_cnt);
+	outfile << (int)answer.sel_cnt << endl;
 	for (int i = 0; i < answer.sel_cnt; i++) {
 		printf("%x%x\n", answer.sel_place[i] % w, answer.sel_place[i] / w);
+		//fprintf_s(fp, "%x%x\n", answer.sel_place[i] % w, answer.sel_place[i] / w);
+		outfile << hex << answer.sel_place[i] % w << answer.sel_place[i] / w << endl;
 		printf("%d\n", answer.swap_cnt[i]);
+		//fprintf_s(fp, "%d\n", answer.swap_cnt[i]);
+		outfile << dec << answer.swap_cnt[i] << endl;
 		cout << answer.swap_operator[i] << endl;
+		//fprintf_s(fp, "%s\n", answer.swap_operator[i]);
+		outfile << answer.swap_operator[i] << endl;
 	}
+	//fclose(fp);
+	outfile.close();
 }
 
 // 最適解の下界
 // 各マスの最小移動距離の合計 / 2
 void status_calc_val(Status &sta) {
 	int sum = 0;
+	sta.dis_array.resize(sta.array_size);
+	sta.dis_top1 = 0;
+	sta.dis_top2 = 0;
+	sta.dis_not_zero = 0;
+
 	for (int y = 0; y < h; y++) {
 		for (int x = 0; x < w; x++) {
-			int dis_x = min(abs(goal_place[sta.place[y][x]] % w - x), w - abs(goal_place[sta.place[y][x]] % w - x));
-			int dis_y = min(abs(goal_place[sta.place[y][x]] / w - y), w - abs(goal_place[sta.place[y][x]] / w - y));
-			sum += dis_x + dis_y;
+			int goal_x = goal_place[sta.place[y][x]] % w;
+			int goal_y = goal_place[sta.place[y][x]] / w;
+			int dis_x = min(abs(goal_x - x), w - abs(goal_x - x));
+			int dis_y = min(abs(goal_y - y), w - abs(goal_y - y));
+			int dis = dis_x + dis_y;
+			sum += dis;
+			sta.dis_array[y * w + x] = dis + dis;
+			if (dis != 0)
+				sta.dis_not_zero++;
 		}
 	}
-	sta.eval_cost = sum;
+	//for (int i = 0; i < sta.array_size; i++) {
+		//int num = sta.dis_array[i];
+	for(unsigned char num : sta.dis_array){
+		if (chmax(sta.dis_top2, num)) {	//より大きいものに更新したら
+			if (sta.dis_top1 < sta.dis_top2) {
+				swap(sta.dis_top1, sta.dis_top2);
+			}
+		}
+	}
+
+	sta.total_dis = sum;
+	sta.eval_cost = max({sum / 2 + (sum & 1), sta.dis_top1 + sta.dis_top2 - 1 });
+	//sta.eval_cost = sum / 2 + (sum & 1);
+
+	int heuristic = 0;
+	if (sta.dis_top2 > 1) {
+		heuristic += min(swap_rate * 2, sel_rate);
+	}
+
+	int eval2 = (sta.dis_not_zero - 1) * swap_rate;
+	if (swap_rate > sel_rate)
+		eval2 = (sta.dis_not_zero - 1) / 2 * (swap_rate + sel_rate);
+
+	sta.compare_cost = max(sta.eval_cost * swap_rate, eval2) + heuristic;
+	//sta.compare_cost = sta.eval_cost * swap_rate;
 }
 
 // 差分により評価値更新
 void status_update_val(Status& sta, int dx, int dy) {
-	int pas_x = min(abs(goal_place[sta.place[sta.y][sta.x]] % w - (sta.x - dx + w) % w), w - abs(goal_place[sta.place[sta.y][sta.x]] % w - (sta.x - dx + w) % w));
-	int pas_y = min(abs(goal_place[sta.place[sta.y][sta.x]] / w - (sta.y - dy + h) % h), w - abs(goal_place[sta.place[sta.y][sta.x]] / w - (sta.y - dy + h) % h));
+	int prev_x = (sta.x - dx + w) % w, prev_y = (sta.y - dy + h) % h;	//持ってるピースの入れ替える前の場所
+
+	//持ってるピースの
+	int goal_x = goal_place[sta.place[sta.y][sta.x]] % w, goal_y = goal_place[sta.place[sta.y][sta.x]] / w;	//目的地
+	//評価値差分
+	int pas_x = min(abs(goal_x - prev_x), w - abs(goal_x - prev_x));
+	int pas_y = min(abs(goal_y - prev_y), w - abs(goal_y - prev_y));
 	int pas_dis = pas_x + pas_y;
-	int new_x = min(abs(goal_place[sta.place[sta.y][sta.x]] % w - sta.x), w - abs(goal_place[sta.place[sta.y][sta.x]] % w - sta.x));
-	int new_y = min(abs(goal_place[sta.place[sta.y][sta.x]] / w - sta.y), w - abs(goal_place[sta.place[sta.y][sta.x]] / w - sta.y));
+	int new_x = min(abs(goal_x - sta.x), w - abs(goal_x - sta.x));
+	int new_y = min(abs(goal_y - sta.y), w - abs(goal_y - sta.y));
 	int new_dis = new_x + new_y;
-	sta.eval_cost += (new_dis - pas_dis);
-	pas_x = min(abs(goal_place[sta.place[(sta.y - dy + h) % h][(sta.x - dx + w) % w]] % w - sta.x), w - abs(goal_place[sta.place[(sta.y - dy + h) % h][(sta.x - dx + w) % w]] % w - sta.x));
-	pas_y = min(abs(goal_place[sta.place[(sta.y - dy + h) % h][(sta.x - dx + w) % w]] / w - sta.y), w - abs(goal_place[sta.place[(sta.y - dy + h) % h][(sta.x - dx + w) % w]] / w - sta.y));
+
+	if (pas_dis == 0 && new_dis != 0)
+		sta.dis_not_zero++;
+	if (pas_dis != 0 && new_dis == 0)
+		sta.dis_not_zero--;
+	sta.dis_array[sta.y * w + sta.x] = new_dis;
+	sta.total_dis += (new_dis - pas_dis);
+
+	//持ってないピースの
+	goal_x = goal_place[sta.place[prev_y][prev_x]] % w; goal_y = goal_place[sta.place[prev_y][prev_x]] / w;	//目的地
+	//評価値差分
+	pas_x = min(abs(goal_x - sta.x), w - abs(goal_x - sta.x));
+	pas_y = min(abs(goal_y - sta.y), w - abs(goal_y - sta.y));
 	pas_dis = pas_x + pas_y;
-	new_x = min(abs(goal_place[sta.place[(sta.y - dy + h) % h][(sta.x - dx + w) % w]] % w - (sta.x - dx + w) % w), w - abs(goal_place[sta.place[(sta.y - dy + h) % h][(sta.x - dx + w) % w]] % w - (sta.x - dx + w) % w));
-	new_y = min(abs(goal_place[sta.place[(sta.y - dy + h) % h][(sta.x - dx + w) % w]] / w - (sta.y - dy + h) % h), w - abs(goal_place[sta.place[(sta.y - dy + h) % h][(sta.x - dx + w) % w]] / w - (sta.y - dy + h) % h));
+	new_x = min(abs(goal_x - prev_x), w - abs(goal_x - prev_x));
+	new_y = min(abs(goal_y - prev_y), w - abs(goal_y - prev_y));
 	new_dis = new_x + new_y;
-	sta.eval_cost += (new_dis - pas_dis);
+	
+	if (pas_dis == 0 && new_dis != 0)
+		sta.dis_not_zero++;
+	if (pas_dis != 0 && new_dis == 0)
+		sta.dis_not_zero--;
+	sta.dis_array[prev_y * w + prev_x] = new_dis;
+	sta.total_dis += (new_dis - pas_dis);
+
+	sta.dis_top1 = 0;
+	sta.dis_top2 = 0;
+
+	for(int i = 0; i < sta.array_size; i++){
+		unsigned char num = sta.dis_array[i];
+	//for(int num : sta.dis_array){
+		if (chmax(sta.dis_top2, num)) {	//より大きいものに更新したら
+			if (sta.dis_top1 < sta.dis_top2)
+				swap(sta.dis_top1, sta.dis_top2);
+		}
+	}
+
+	sta.eval_cost = max({ sta.total_dis / 2 + (sta.total_dis & 1), sta.dis_top1 + sta.dis_top2 - 1});
+	//sta.eval_cost = sta.total_dis / 2 + (sta.total_dis & 1);
+
+	int eval2 = (sta.dis_not_zero - 1) * swap_rate;
+	if (swap_rate > sel_rate)
+		eval2 = (sta.dis_not_zero - 1) / 2 * (swap_rate + sel_rate);
+
+	int heuristic = 0;
+	int heuristic_all = 0;
+	if (sta.dis_top2 > 1) {
+		heuristic += min(swap_rate, sel_rate);
+		heuristic_all += min(swap_rate, sel_rate);
+	}
+	if (sta.dis_array[sta.y * w + sta.x] == 0 && sta.dis_not_zero != 0) {
+		heuristic_all += min(swap_rate*2, sel_rate);
+	}
+
+	sta.compare_cost = sta.total_cost + max(sta.eval_cost * swap_rate + heuristic, eval2) + heuristic_all;
+	//sta.compare_cost = sta.total_cost + sta.eval_cost * swap_rate;
 }
+

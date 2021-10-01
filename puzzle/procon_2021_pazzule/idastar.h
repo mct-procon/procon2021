@@ -1,4 +1,4 @@
 #pragma once
 
-int idastar(int depth, int count, Status& ans);
+bool idastar(int depth, Status& ans);
 void idastar_solve(Status& ans);
