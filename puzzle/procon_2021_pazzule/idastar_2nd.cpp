@@ -19,7 +19,7 @@ namespace IDA {
 	int node_cnt = 0;
 }
 using namespace IDA;
-bool idastar(int goal_eval_cost, Status &sta) {
+bool idastar2(int goal_eval_cost, Status &sta) {
 	node_cnt++;
 	if (sta.place == complete) {
 		answer = sta;
@@ -51,7 +51,7 @@ bool idastar(int goal_eval_cost, Status &sta) {
 			sta.sellected = 0;
 
 			if (goal_eval_cost >= sta.compare_cost) {
-				clear = idastar(goal_eval_cost, sta);
+				clear = idastar2(goal_eval_cost, sta);
 				if (clear) return true;
 			}
 			else {
@@ -77,7 +77,7 @@ bool idastar(int goal_eval_cost, Status &sta) {
 					continue;
 
 				if (goal_eval_cost >= sta.compare_cost) {
-					clear = idastar(goal_eval_cost, sta);
+					clear = idastar2(goal_eval_cost, sta);
 					if (clear) return true;
 				}
 				else {
@@ -94,12 +94,12 @@ bool idastar(int goal_eval_cost, Status &sta) {
 }
 
 //ˆ—‚Ì—¬‚ê(‚±‚±‚Å‚Í”½•œ[‰»‚Ì‚İ)
-void idastar_solve(Status &sta){
+void idastar2_solve(Status &sta){
 	bool clear = false;
 	for (int depth = sta.compare_cost + sel_rate; !clear; depth = next_eval_cost) {
 		next_eval_cost = INT_MAX;
 		printf("[search]depth: %d\n", depth);
-		clear = idastar(depth, sta);
+		clear = idastar2(depth, sta);
 		printf("[end]nodes: %d\n", node_cnt);
 		node_cnt = 0;
 	}

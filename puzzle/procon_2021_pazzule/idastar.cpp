@@ -47,7 +47,7 @@ bool idastar(int depth, int count, Status &status) {
 				else
 					max_depth = min(max_depth, count + 1 + status.eval_cost / 2 + ((status.eval_cost % 2 == 0) ? 0 : 1));
 				if (clear) return true;
-				status_unmove(status, pre_x, pre_y);
+				status_unmove(status);
 			}
 		}
 	}
