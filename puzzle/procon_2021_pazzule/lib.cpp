@@ -29,21 +29,13 @@ void input(vector<vector<int> > &table) {
 	cin >> h;
 	cout << "横の分割数(2～16)>";
 	cin >> w;
+	cout << "選択回数制限(2～128)>";
+	cin >> sel_lim;
 	cout << "選択コスト変換レート(1～500)>";
 	cin >> sel_rate;
 	cout << "交換コスト変換レート(1～100)>";
 	cin >> swap_rate;
-	cout << "選択回数制限(2～128)>";
-	cin >> sel_lim;
 	spin.resize(h * w, 0);
-	cout << "回転情報(なければ -1)>";
-	for (int i = 0; i < h * w; i++) {
-		cin >> spin[i];
-		if (spin[i] == -1) {
-			spin[i] = 0;
-			break;
-		}
-	}
 
 	table.resize(h);
 	for (int i = 0; i < h; i++)
@@ -59,7 +51,7 @@ void input(vector<vector<int> > &table) {
 			for (int x = 0; x < w; x++) {
 				int num;
 				cin >> num;
-				complete[num / w][num % w] = y*w + x;
+				complete[y][x] = num;
 			}
 		}
 		break;
@@ -82,6 +74,15 @@ void input(vector<vector<int> > &table) {
 			cout << endl;
 		}
 	}
+	cout << "回転情報(なければ -1)>";
+	for (int i = 0; i < h * w; i++) {
+		cin >> spin[i];
+		if (spin[i] == -1) {
+			spin[i] = 0;
+			break;
+		}
+	}
+
 	//マンハッタン距離計算用座標の位置
 	goal_place.resize(h * w);
 	for (int y = 0; y < h; y++)
