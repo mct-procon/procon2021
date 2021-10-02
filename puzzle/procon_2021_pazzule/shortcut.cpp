@@ -1,9 +1,11 @@
 #include <iostream>
 #include <vector>
 #include <queue>
+#include <fstream>
 #include "status.h"
 #include "lib.h"
 #include "one_wrote.h"
+#include "output_csv.h"
 using namespace std;
 extern vector<vector<unsigned char> > complete;
 extern vector<int> goal_place;
@@ -18,9 +20,10 @@ namespace SCUT {
 	};
 	int node_cnt = 0;
 
-	vector<vector<unsigned char>> mid_comp;
+	unsigned char mid_sel;
 	Status mid_answer;
 	int mid_cost = 0;
+	clock_t start;
 }
 using namespace SCUT;
 bool shortcut(int goal_eval_cost, Status& sta) {
@@ -31,6 +34,9 @@ bool shortcut(int goal_eval_cost, Status& sta) {
 	}
 	if (goal_eval_cost < sta.compare_cost) {
 		next_eval_cost = min(next_eval_cost, sta.compare_cost);
+		return 0;
+	}
+	if ((clock() - start) / CLOCKS_PER_SEC >= 30) {
 		return 0;
 	}
 
@@ -69,12 +75,15 @@ bool shortcut(int goal_eval_cost, Status& sta) {
 	}
 
 	//éùÇøë÷Ç¶ÇÈ
-	if (sta.sel_cnt < sel_lim && !sta.sellected) {	//âÒêîêßå¿Ç∆òAë±îÇØ
+	if (sta.sel_cnt < sel_lim - 2 && !sta.sellected) {	//âÒêîêßå¿Ç∆òAë±îÇØ
 		for (int y = 0; y < h; y++) {
 			for (int x = 0; x < w; x++) {
 				int pre_x = sta.x, pre_y = sta.y;
 				if (sta.x != x || sta.y != y) {
 					status_sellect(sta, x, y);
+					if (sta.place[y][x] != mid_sel) {
+						sta.compare_cost += sel_rate;
+					}
 					sta.sellected = 1;
 				}
 				else
@@ -88,6 +97,9 @@ bool shortcut(int goal_eval_cost, Status& sta) {
 					next_eval_cost = min(next_eval_cost, sta.compare_cost);
 				}
 
+				if (sta.place[y][x] != mid_sel) {
+					sta.compare_cost -= sel_rate;
+				}
 				status_unsellect(sta, pre_x, pre_y);
 				sta.sellected = 0;
 			}
@@ -97,75 +109,140 @@ bool shortcut(int goal_eval_cost, Status& sta) {
 	return clear;
 }
 
-//èàóùÇÃó¨ÇÍ(Ç±Ç±Ç≈ÇÕîΩïúê[âªÇÃÇ›)
 void shortcut_solve(Status& sta) {
+	Status ow_answer = sta;
 	mid_answer = sta;
 	//àÍïMèëÇ´ÇÃåãâ ÇìæÇÈ
-	ow_solve(mid_answer);
-	int sta_array_size = 1 + mid_answer.swap_cnt[0] + 1;
-	if (mid_answer.sel_cnt == 2) {
-		sta_array_size += mid_answer.swap_cnt[1] + 1;
+	ow_solve(ow_answer);
+	answer = sta;
+	int sta_array_size = 1 + ow_answer.swap_cnt[0] + 1;
+	if (ow_answer.sel_cnt == 2) {
+		sta_array_size += ow_answer.swap_cnt[1] + 1;
 	}
 	vector<Status> sta_array(sta_array_size);
 	Status state = sta;
 	int swap_op = 0;
-	FILE* fp;
-	//fopen_s(&fp, "distance.csv", "w");
 	for (int i = 0; i < sta_array_size; i++) {
 		sta_array[i] = state;
-		//cout << state.total_dis << endl;
-		//fprintf_s(fp, "%d,\n", state.total_dis);
 		if (i == sta_array_size - 1) break;
 		
 		if (i == 0) {
-			status_sellect(state, mid_answer.sel_place[0] % w, mid_answer.sel_place[0] / w);
+			status_sellect(state, ow_answer.sel_place[0] % w, ow_answer.sel_place[0] / w);
+			mid_sel = sta.place[ow_answer.sel_place[0] / w][ow_answer.sel_place[0] % w];
 		}
-		if (i <= mid_answer.swap_cnt[0]) {
-			if (mid_answer.swap_operator[0][swap_op] == 'U')
+		if (i <= ow_answer.swap_cnt[0]) {
+			if (ow_answer.swap_operator[0][swap_op] == 'U')
 				status_move(state, 0, -1);
-			if (mid_answer.swap_operator[0][swap_op] == 'D')
+			if (ow_answer.swap_operator[0][swap_op] == 'D')
 				status_move(state, 0, 1);
-			if (mid_answer.swap_operator[0][swap_op] == 'R')
+			if (ow_answer.swap_operator[0][swap_op] == 'R')
 				status_move(state, 1, 0);
-			if (mid_answer.swap_operator[0][swap_op] == 'L')
+			if (ow_answer.swap_operator[0][swap_op] == 'L')
 				status_move(state, -1, 0);
 			swap_op++;
 		}
-		if (i == mid_answer.swap_cnt[0] + 1) {
-			status_sellect(state, mid_answer.sel_place[1] % w, mid_answer.sel_place[1] / w);
+		if (i == ow_answer.swap_cnt[0] + 1) {
+			status_sellect(state, ow_answer.sel_place[1] % w, ow_answer.sel_place[1] / w);
 			swap_op = 0;
 		}
-		if (i > mid_answer.swap_cnt[0] + 1) {
-			if (mid_answer.swap_operator[1][swap_op] == 'U')
+		if (i > ow_answer.swap_cnt[0] + 1) {
+			if (ow_answer.swap_operator[1][swap_op] == 'U')
 				status_move(state, 0, -1);
-			if (mid_answer.swap_operator[1][swap_op] == 'D')
+			if (ow_answer.swap_operator[1][swap_op] == 'D')
 				status_move(state, 0, 1);
-			if (mid_answer.swap_operator[1][swap_op] == 'R')
+			if (ow_answer.swap_operator[1][swap_op] == 'R')
 				status_move(state, 1, 0);
-			if (mid_answer.swap_operator[1][swap_op] == 'L')
+			if (ow_answer.swap_operator[1][swap_op] == 'L')
 				status_move(state, -1, 0);
 			swap_op++;
 		}
 	}
-	//fclose(fp);
-	//
+	output_csv(sta, ow_answer, "OneWrote.csv");
+
 
 	//âÇíZèkÇµÇƒÇ¢Ç≠
-	clock_t start = clock();
-	//while ((clock() - start) / CLOCKS_PER_SEC < 5) 
+	start = clock();
+	//àÍïMèëÇ´ìríÜÇÃèÛë‘ÇÇ∆ÇÈ
+	int length = 28;
+	int end_num = length;
+	Status end_sta = sta_array[end_num];
+	auto pre_comp = complete;
+	while ((clock() - start) / CLOCKS_PER_SEC < 30)
 	{
 		bool clear = false;
-		//àÍïMèëÇ´ìríÜÇÃèÛë‘ÇÇ∆ÇÈ
 		
+		complete = end_sta.place;
+		for (int y = 0; y < h; y++)
+			for (int x = 0; x < w; x++)
+				goal_place[complete[y][x]] = x + y * w;
+		status_calc_val(mid_answer);
 
-		//for (int depth = sta.compare_cost + sel_rate; !clear; depth = next_eval_cost) {
-		//	next_eval_cost = INT_MAX;
-		//	printf("[search]depth: %d\n", depth);
-		//	clear = shortcut(depth, sta);
-		//	printf("[end]nodes: %d\n", node_cnt);
-		//	node_cnt = 0;
-		//}
+		for (int depth = mid_answer.compare_cost; !clear && (clock() - start) / CLOCKS_PER_SEC < 30 && depth < end_sta.total_cost; depth = next_eval_cost) {
+			next_eval_cost = INT_MAX;
+			printf("[search]depth: %d\n", depth);
+			clear = shortcut(depth, mid_answer);
+			printf("[end]nodes: %d\n", node_cnt);
+			node_cnt = 0;
+		}
+		if (clear) {
+			//cout << "OK!" << endl;
+		}
+		else {
+			if (mid_answer.sel_cnt == 0 || mid_answer.place[mid_answer.y][mid_answer.x] != mid_sel) {
+				status_sellect(mid_answer, mid_answer.replace[mid_sel] % w, mid_answer.replace[mid_sel] / w);
+			}
+			for (int j = end_num - length; j < end_num; j++) {
+				if (ow_answer.swap_operator[0][j] == 'U')
+					status_move(mid_answer, 0, -1);
+				if (ow_answer.swap_operator[0][j] == 'D')
+					status_move(mid_answer, 0, 1);
+				if (ow_answer.swap_operator[0][j] == 'R')
+					status_move(mid_answer, 1, 0);
+				if (ow_answer.swap_operator[0][j] == 'L')
+					status_move(mid_answer, -1, 0);
+			}
+		}
+		end_num += length;
+		if (end_num > ow_answer.swap_cnt[0]) {
+			break;
+		}
+		end_sta = sta_array[end_num];
 	}
-	status_show(answer);
+	if (mid_answer.sel_cnt == 0 || mid_answer.place[mid_answer.y][mid_answer.x] != mid_sel) {
+		status_sellect(mid_answer, mid_answer.replace[mid_sel] % w, mid_answer.replace[mid_sel] / w);
+	}
+	for (int j = end_num - length; j < ow_answer.swap_cnt[0]; j++) {
+		if (ow_answer.swap_operator[0][j] == 'U')
+			status_move(mid_answer, 0, -1);
+		if (ow_answer.swap_operator[0][j] == 'D')
+			status_move(mid_answer, 0, 1);
+		if (ow_answer.swap_operator[0][j] == 'R')
+			status_move(mid_answer, 1, 0);
+		if (ow_answer.swap_operator[0][j] == 'L')
+			status_move(mid_answer, -1, 0);
+	}
+	if (ow_answer.sel_cnt == 2) {
+		status_sellect(mid_answer, ow_answer.sel_place[1] % w, ow_answer.sel_place[1] / w);
+		for (int j = 0; j < ow_answer.swap_cnt[1]; j++) {
+			if (ow_answer.swap_operator[1][j] == 'U')
+				status_move(mid_answer, 0, -1);
+			if (ow_answer.swap_operator[1][j] == 'D')
+				status_move(mid_answer, 0, 1);
+			if (ow_answer.swap_operator[1][j] == 'R')
+				status_move(mid_answer, 1, 0);
+			if (ow_answer.swap_operator[1][j] == 'L')
+				status_move(mid_answer, -1, 0);
+		}
+	}
+
+	answer = mid_answer;
+	complete = pre_comp;
+	for (int y = 0; y < h; y++)
+		for (int x = 0; x < w; x++)
+			goal_place[complete[y][x]] = x + y * w;
+
+//	status_show(answer);
 	status_show_cost(answer);
+
+	output_csv(sta, answer, "ShortCut.csv");
 }

@@ -19,6 +19,7 @@
 #include "one_wrote_eval.h"
 #include "DFS_withOneWrote.h"
 #include "shortcut.h"
+#include "output_csv.h"
 using namespace std;
 
 vector<vector<unsigned char> > complete;
