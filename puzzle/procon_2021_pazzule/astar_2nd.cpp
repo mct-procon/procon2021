@@ -10,7 +10,7 @@ extern Status answer;
 extern int h, w, sel_rate, swap_rate, sel_lim, search_dir;
 
 //A*‚É‚æ‚é’Tõ(ƒƒ‚ƒŠ‚Í‚»‚ñ‚È‚ÉH‚×‚ç‚ê‚È‚¢‚Æ—\‘ª)
-void astar2_solve(Status &status) {
+void astar_solve(Status &status) {
 	int d[2][4] = {
 		{ 0, 1, 0, -1},
 		{ 1, 0, -1, 0}
