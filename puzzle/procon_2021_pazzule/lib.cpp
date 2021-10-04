@@ -316,7 +316,7 @@ void status_calc_val(Status &sta) {
 			int dis_y = min(abs(goal_y - y), w - abs(goal_y - y));
 			int dis = dis_x + dis_y;
 			sum += dis;
-			sta.dis_array[y * w + x] = dis + dis;
+			sta.dis_array[y * w + x] = dis;
 			if (dis != 0)
 				sta.dis_not_zero++;
 		}
