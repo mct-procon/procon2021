@@ -18,7 +18,7 @@ void input(vector<vector<int> > &table) {
 	int target_i;
 
 	//入力を受け取る
-	cout << "パズル手法(0:手動   1:IDA*(2nd)   2:A*(2nd)   3:強制移動　4:深さの塊　5:一筆書き　6:一筆IDA*　7:DFS一筆　8:ShortCut)>";
+	cout << "パズル手法(0:手動   1:IDA*(2nd)   2:A*(2nd)   3:強制移動　4:深さの塊　5:一筆書き　6:一筆IDA*　7:DFS一筆　8:ShortCut  9:一筆書きb)>";
 	cin >> move_style;
 	cout << "移動方向(0: 全方向 1:右と下)>";
 	cin >> search_dir;

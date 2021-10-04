@@ -277,7 +277,7 @@ namespace {
 }
 
 // ‰E‰º‚Ì‚à‚Ì‚ğ‚Á‚ÄA¶ã‚©‚ç‡‚í‚¹‚Ä‚¢‚­
-void ow_solve(Status &status) {
+void ow_b_solve(Status &status) {
 	vector<int> cur_pos(h * w);
 	for (int i = 0; i < h * w; i++) {
 		cur_pos[i] = i;

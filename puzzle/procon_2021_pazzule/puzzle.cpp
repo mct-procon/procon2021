@@ -69,11 +69,14 @@ int main() {
 		case SHORTCUT:
 			shortcut_solve(init_status);
 			break;
+		case OW_B:
+			ow_b_solve(init_status);
+			break;
 		}
 	}
 
 	cout << endl;
-	show_table(table);
+	//show_table(table);
 	cout << endl;
 	status_sub_for();
 	return 0;
