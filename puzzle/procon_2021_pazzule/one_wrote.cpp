@@ -188,7 +188,7 @@ namespace {
 		int dx[4] = { 1, 0, -1, 0 }, dy[4] = { 0, 1, 0, -1 };
 
 		while (sta.place != complete) {
-			int d, g = check_two_pass(sta.place);
+			int d = 0, g = check_two_pass(sta.place);
 			int x[4] = { w - 2, w - 1, w - 1, w - 2 }, y[4] = { h - 2, h - 2, h - 1, h - 1 };
 
 			if (g != -1 && ((x[g] == sta.x && y[g] == sta.y) || (x[(g + 1) % 4] == sta.x && y[(g + 1) % 4] == sta.y))) {
@@ -210,7 +210,7 @@ namespace {
 		int dx[4] = { 1, 0, -1, 0 }, dy[4] = { 0, 1, 0, -1 }, res = 0;
 
 		while (sta.place != complete) {
-			int d, g = check_two_pass(sta.place);
+			int d = 0, g = check_two_pass(sta.place);
 			int x[4] = { w - 2, w - 1, w - 1, w - 2 }, y[4] = { h - 2, h - 2, h - 1, h - 1 };
 
 			if (g != -1 && ((x[g] == sta.x && y[g] == sta.y) || (x[(g + 1) % 4] == sta.x && y[(g + 1) % 4] == sta.y))) {
@@ -241,7 +241,6 @@ void ow_solve(Status &status) {
 		for (int x = 0; x < w; x++) {
 			int i, dx;
 			int edge = (x == w - 1) ? 1 : 0; // 端っこ用
-
 
 			// i => 動かしたい数字の現在地
 			if (x < w - 2) {
@@ -274,38 +273,44 @@ void ow_solve(Status &status) {
 				if (cur_x == x && cur_y == y && next_x == x - 1 && next_y == y) continue;
 			}
 
+      int ix = i % w;
+      int iy = i / w;
+
 			// 隣りに行く
-			if (x - edge != i % w) {
-				if (x - edge < i % w)
-					move_place(status, i % w - 1, i / w, x, y, i % w, i / w);
+			if (x - edge != ix) {
+				if (x - edge < ix)
+					move_place(status, ix - 1, iy, x, y, ix, iy);
 				else
-					move_place(status, i % w + 1, i / w, x, y, i % w, i / w);
+					move_place(status, ix + 1, iy, x, y, ix, iy);
 			}
-			else if (y + edge != i / w) {
-				move_place(status, i % w, i / w - 1, x, y, i % w, i / w);
+			else if (y + edge != iy) {
+				move_place(status, ix, iy - 1, x, y, ix, iy);
 			}
 
 
 			// 左右をそろえる
-			if (i % w < x - edge) {
+			if (ix < x - edge) {
 				dx = -1;
 			}
 			else {
 				dx = 1;
 			}
-			while (i % w != x - edge) {
-				move_place(status, i % w - dx, i / w, x, y, i % w, i / w);
-				if (status.y == i / w && status.x == i % w - dx) {
+
+			while (ix != x - edge) {
+				move_place(status, ix - dx, iy, x, y, ix, iy);
+				if (status.y == iy && status.x == ix - dx) {
 					status_move(status, dx, 0);
+          ix -= dx;
 					i -= dx;
 				}
 			}
 
 			// 上下をそろえる
-			while (i / w != y + edge) {
-				move_place(status, i % w, i / w - 1, x, y, i % w, i / w);
-				if (status.y == i / w - 1 && status.x == i % w) {
+			while (iy != y + edge) {
+				move_place(status, ix, iy - 1, x, y, ix, iy);
+				if (status.y == iy - 1 && status.x == ix) {
 					status_move(status, 0, 1);
+          iy--;
 					i -= w;
 				}
 			}
@@ -354,19 +359,22 @@ void ow_solve(Status &status) {
 				if (cur_x == x && cur_y == y && next_x == x && next_y == y - 1) continue; // 初めからそろってるとき
 			}
 
-
+      int ix = i % w;
+      int iy = i / w;
 
 			// 上下をそろえる
-			if (i / w == h - 1) {
-				move_place(status, i % w, i / w - 1, x, y, i % w, i / w);
+			if (iy == h - 1) {
+				move_place(status, ix, iy - 1, x, y, ix, iy);
 				status_move(status, 0, 1);
+        iy--;
 				i -= w;
 			}
 
 			// 左右をそろえる
-			while (i % w != x + pre) {
-				move_place(status, i % w - 1, i / w, x, y, i % w, i / w);
+			while (ix != x + pre) {
+				move_place(status, ix - 1, iy, x, y, ix, iy);
 				status_move(status, 1, 0);
+        ix--;
 				i -= 1;
 			}
 
