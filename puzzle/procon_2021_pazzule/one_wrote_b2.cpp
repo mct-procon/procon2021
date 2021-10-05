@@ -14,7 +14,7 @@ extern int h, w, sel_rate, swap_rate, sel_lim, search_dir;
 
 namespace {
 	// 目的の場所まで移動する(A*アルゴリズム) p => 目的地 a => すでにそろえたところまで m =>　動かしちゃダメ
-	void move_place(Status& status, int px, int py, int ax, int ay, int mx, int my) {
+	void move_place(Status& status, vector<int>& cur_pos, int px, int py, int ax, int ay, int mx, int my) {
 		vector<vector<int> > table(h, vector<int>(w, 256));
 		vector<int> route;
 		priority_queue<pair<int, int> > q;
@@ -58,114 +58,160 @@ namespace {
 
 		//移動
 		for (i = 0; i < table[py][px]; i++) {
+			cur_pos[status.place[status.y + dy[route[i]]][status.x + dx[route[i]]]] -= dx[route[i]] + dy[route[i]] * w;
 			status_move(status, dx[route[i]], dy[route[i]]);
+			cur_pos[status.place[status.y][status.x]] += dx[route[i]] + dy[route[i]] * w;
 		}
 	}
 
 	//　右端2列のそろえにくい場合の対処
-	void avoid_bad_case(Status& status, int x, int y) {
+	void avoid_bad_case(Status& status, vector<int>& cur_pos, int x, int y) {
 		if (status.place[y + 1][w - 2] == complete[y][w - 1] && status.place[y][w - 1] == complete[y][w - 2] && status.x == w - 2 && status.y == y) {
+			cur_pos[status.place[status.y][status.x + 1]] -= 1;
 			status_move(status, 1, 0);
+			cur_pos[status.place[status.y][status.x]] += 1;
 		}
 
 		if (status.place[y + 1][w - 2] == complete[y][w - 2] && status.place[y][w - 1] == complete[y][w - 1] && status.y == y) {
+			cur_pos[status.place[status.y + 1][status.x]] -= w;
 			status_move(status, 0, 1);
+			cur_pos[status.place[status.y][status.x]] += w;
 		}
 
 		if (status.place[y][w - 2] == complete[y][w - 1] && status.place[y][w - 1] == complete[y][w - 2]) {
-			move_place(status, w - 2, y + 1, x, y, -1, -1);
+			move_place(status, cur_pos, w - 2, y + 1, x, y, -1, -1);
+			cur_pos[status.place[status.y - 1][status.x]] -= -w;
 			status_move(status, 0, -1);
+			cur_pos[status.place[status.y][status.x]] += -w;
 		}
 
 		if (status.place[y + 1][w - 2] == complete[y][w - 1] && status.place[y][w - 1] == complete[y][w - 2] && status.x == w - 2 && status.y == y) {
+			cur_pos[status.place[status.y][status.x + 1]] -= 1;
 			status_move(status, 1, 0);
+			cur_pos[status.place[status.y][status.x]] += 1;
 		}
 
 		if (status.place[y + 1][w - 2] == complete[y][w - 2] && status.place[y + 1][w - 1] == complete[y][w - 1]) {
-			move_place(status, w - 2, y, x, y, -1, -1);
+			move_place(status, cur_pos, w - 2, y, x, y, -1, -1);
+			cur_pos[status.place[status.y + 1][status.x]] -= w;
 			status_move(status, 0, 1);
+			cur_pos[status.place[status.y][status.x]] += w;
 		}
 
 		if (status.place[y + 1][w - 2] == complete[y][w - 2] && ((status.x == x && status.y == y) || (status.x == x + 1 && status.y == y))) {
-			move_place(status, w - 1, y + 1, x, y, w - 2, y + 1);
+			move_place(status, cur_pos, w - 1, y + 1, x, y, w - 2, y + 1);
 		}
 
 		if (status.place[y][w - 2] == complete[y][w - 2] && status.place[y + 1][w - 2] == complete[y][w - 1]) {
-			move_place(status, w - 3, y + 1, x, y, w - 2, y + 1);
+			move_place(status, cur_pos, w - 3, y + 1, x, y, w - 2, y + 1);
+			cur_pos[status.place[status.y][status.x + 1]] -= 1;
 			status_move(status, 1, 0);
+			cur_pos[status.place[status.y][status.x]] += 1;
 		}
 		if (status.place[y][w - 2] == complete[y][w - 2] && status.place[y + 1][w - 1] == complete[y][w - 1]) {
-			move_place(status, w - 1, y + 2, x, y, y + 1, w - 1);
+			move_place(status, cur_pos, w - 1, y + 2, x, y, y + 1, w - 1);
+			cur_pos[status.place[status.y - 1][status.x]] -= -w;
 			status_move(status, 0, -1);
+			cur_pos[status.place[status.y][status.x]] += -w;
 		}
 		if (status.place[y][w - 2] == complete[y][w - 2]) {
-			move_place(status, w - 1, y, x, y, w - 2, y);
+			move_place(status, cur_pos, w - 1, y, x, y, w - 2, y);
+			cur_pos[status.place[status.y][status.x - 1]] -= -1;
 			status_move(status, -1, 0);
+			cur_pos[status.place[status.y][status.x]] += -1;
 		}
 
 		if (status.place[y][w - 1] == complete[y][w - 1] && status.place[y + 1][w - 1] == complete[y][w - 2]) {
-			move_place(status, w - 1, y + 2, x, y, w - 1, y + 1);
+			move_place(status, cur_pos, w - 1, y + 2, x, y, w - 1, y + 1);
+			cur_pos[status.place[status.y - 1][status.x]] -= -w;
 			status_move(status, 0, -1);
+			cur_pos[status.place[status.y][status.x]] += -w;
 		}
 	}
 
 	// 下の2段がそろえにくいときの対処法
-	void avoid_bad_case2(Status& status, int x, int y) {
+	void avoid_bad_case2(Status& status, vector<int>& cur_pos, int x, int y) {
 		if (status.place[h - 2][x + 1] == complete[h - 2][x]) {
-			move_place(status, x + 2, h - 2, x, y, x + 1, h - 2);
+			move_place(status, cur_pos, x + 2, h - 2, x, y, x + 1, h - 2);
+			cur_pos[status.place[status.y][status.x - 1]] -= -1;
 			status_move(status, -1, 0);
+			cur_pos[status.place[status.y][status.x]] += -1;
 		}
 
 		if (status.place[h - 2][x] == complete[h - 1][x] && status.place[h - 1][x] == complete[h - 2][x]) {
-			move_place(status, x + 1, h - 1, x, y, x, h - 2);
+			move_place(status, cur_pos, x + 1, h - 1, x, y, x, h - 2);
+			cur_pos[status.place[status.y][status.x - 1]] -= -1;
 			status_move(status, -1, 0);
+			cur_pos[status.place[status.y][status.x]] += -1;
 
+			cur_pos[status.place[status.y - 1][status.x]] -= -w;
 			status_move(status, 0, -1);
+			cur_pos[status.place[status.y][status.x]] += -w;
 		}
 
 		if (status.place[h - 1][x] == complete[h - 1][x] && status.place[h - 2][x + 1] == complete[h - 2][x]) {
 			if (status.x == x && status.y == h - 2) {
+				cur_pos[status.place[status.y][status.x + 1]] -= 1;
 				status_move(status, 1, 0);
+				cur_pos[status.place[status.y][status.x]] += 1;
 			}
 			else {
-				move_place(status, x + 2, h - 2, x, y, x + 1, h - 2);
+				move_place(status, cur_pos, x + 2, h - 2, x, y, x + 1, h - 2);
+				cur_pos[status.place[status.y][status.x - 1]] -= -1;
 				status_move(status, -1, 0);
+				cur_pos[status.place[status.y][status.x]] += -1;
 			}
 		}
 
 		if (status.place[h - 2][x] == complete[h - 2][x] && status.place[h - 1][x + 1] == complete[h - 1][x]) {
 			if (status.x == x && status.y == h - 1) {
+				cur_pos[status.place[status.y][status.x + 1]] -= 1;
 				status_move(status, 1, 0);
+				cur_pos[status.place[status.y][status.x]] += 1;
 			}
 			else {
-				move_place(status, x + 2, h - 1, x, y, x + 1, h - 1);
+				move_place(status, cur_pos, x + 2, h - 1, x, y, x + 1, h - 1);
+				cur_pos[status.place[status.y][status.x - 1]] -= -1;
 				status_move(status, -1, 0);
+				cur_pos[status.place[status.y][status.x]] += -1;
 			}
 		}
 
 		if (status.place[h - 2][x + 1] == complete[h - 1][x] && status.place[h - 1][x] == complete[h - 2][x] && status.x == x && status.y == h - 2) {
+			cur_pos[status.place[status.y + 1][status.x]] -= w;
 			status_move(status, 0, 1);
+			cur_pos[status.place[status.y][status.x]] += w;
 		}
 		if (status.place[h - 2][x] == complete[h - 1][x] && status.place[h - 1][x + 1] == complete[h - 2][x] && status.x == x && status.y == h - 1) {
+			cur_pos[status.place[status.y - 1][status.x]] -= -w;
 			status_move(status, 0, -1);
+			cur_pos[status.place[status.y][status.x]] += -w;
 		}
 		if (status.place[h - 1][x] == complete[h - 1][x] && status.place[h - 1][x + 1] == complete[h - 2][x]) {
-			move_place(status, x + 2, h - 1, x, y, x, h - 1);
+			move_place(status, cur_pos, x + 2, h - 1, x, y, x, h - 1);
+			cur_pos[status.place[status.y][status.x - 1]] -= -1;
 			status_move(status, -1, 0);
+			cur_pos[status.place[status.y][status.x]] += -1;
 		}
 
 		if (status.place[h - 2][x] == complete[h - 2][x] && status.place[h - 2][x + 1] == complete[h - 1][x]) {
-			move_place(status, x + 2, h - 2, x, y, x + 1, h - 2);
+			move_place(status, cur_pos, x + 2, h - 2, x, y, x + 1, h - 2);
+			cur_pos[status.place[status.y][status.x - 1]] -= -1;
 			status_move(status, -1, 0);
+			cur_pos[status.place[status.y][status.x]] += -1;
 		}
 
 		if (status.place[h - 2][x] == complete[h - 2][x] && status.place[h - 1][x + 1] == complete[h - 1][x]) {
-			move_place(status, x + 2, h - 1, x, y, x + 1, h - 1);
+			move_place(status, cur_pos, x + 2, h - 1, x, y, x + 1, h - 1);
+			cur_pos[status.place[status.y][status.x - 1]] -= -1;
 			status_move(status, -1, 0);
+			cur_pos[status.place[status.y][status.x]] += -1;
 		}
 		if (status.place[h - 2][x] == complete[h - 2][x]) {
-			move_place(status, x, h - 1, x, y, x, h - 2);
+			move_place(status, cur_pos, x, h - 1, x, y, x, h - 2);
+			cur_pos[status.place[status.y - 1][status.x]] -= -w;
 			status_move(status, 0, -1);
+			cur_pos[status.place[status.y][status.x]] += -w;
 		}
 	}
 
@@ -232,10 +278,14 @@ namespace {
 
 // 右下のものを持って、左上から合わせていく
 void ow_solve(Status &status) {
+	vector<int> cur_pos(h * w);
+	for (int i = 0; i < h * w; i++) {
+		cur_pos[i] = status.replace[i];
+	}
 	// 初期状態だから右下にあるやつが分かる
 	status_sellect(status, complete[h - 1][w - 1] % w, complete[h - 1][w - 1] / w);
 
-	// そろえたい数字=>complete[y][x] その数字の現在地=>status.replace[complete[y][x]] 目標=>status.replace[complete[y][x]] == y * w + x
+	// そろえたい数字=>complete[y][x] その数字の現在地=>cur_pos[complete[y][x]] 目標=>cur_pos[complete[y][x]] == y * w + x
 	// 下2列以外
 	for (int y = 0; y < h - 2; y++) {
 		for (int x = 0; x < w; x++) {
@@ -245,44 +295,33 @@ void ow_solve(Status &status) {
 
 			// i => 動かしたい数字の現在地
 			if (x < w - 2) {
-				i = status.replace[complete[y][x]];
+				i = cur_pos[complete[y][x]];
 				if (i % w == x && i / w == y) continue;
 			}
 			else if (x == w - 2) {
-        int cur_x = status.replace[complete[y][x]] % w;
-        int cur_y = status.replace[complete[y][x]] / w;
-        int next_x = status.replace[complete[y][x + 1]] % w;
-        int next_y = status.replace[complete[y][x + 1]] / w;
-				if (cur_x == x && cur_y == y && next_x == x + 1 && next_y == y) continue;
-				if (cur_x % w == x && cur_y == y + 1 && next_x == x && next_y == y) continue;
-				avoid_bad_case(status, x, y);
-				i = status.replace[complete[y][w - 1]];
-        cur_x = status.replace[complete[y][x]] % w;
-        cur_y = status.replace[complete[y][x]] / w;
-        next_x = status.replace[complete[y][x + 1]] % w;
-        next_y = status.replace[complete[y][x + 1]] / w;
-				if (cur_x == x && cur_y == y && next_x == x + 1 && next_y == y) continue;
-				if (cur_x == x && cur_y == y + 1 && next_x == x && next_y == y) continue;
+				if (cur_pos[complete[y][x]] % w == x && cur_pos[complete[y][x]] / w == y && cur_pos[complete[y][x + 1]] % w == x + 1 && cur_pos[complete[y][x + 1]] / w == y) continue;
+				if (cur_pos[complete[y][x]] % w == x && cur_pos[complete[y][x]] / w == y + 1 && cur_pos[complete[y][x + 1]] % w == x && cur_pos[complete[y][x + 1]] / w == y) continue;
+				avoid_bad_case(status, cur_pos, x, y);
+				i = cur_pos[complete[y][w - 1]];
+				if (cur_pos[complete[y][x]] % w == x && cur_pos[complete[y][x]] / w == y && cur_pos[complete[y][x + 1]] % w == x + 1 && cur_pos[complete[y][x + 1]] / w == y) continue;
+				if (cur_pos[complete[y][x]] % w == x && cur_pos[complete[y][x]] / w == y + 1 && cur_pos[complete[y][x + 1]] % w == x && cur_pos[complete[y][x + 1]] / w == y) continue;
+
 			}
 			else if (x == w - 1) {
-				i = status.replace[complete[y][w - 2]];
+				i = cur_pos[complete[y][w - 2]];
 				if (i % w == x - 1 && i / w == y + 1) continue;
-        int cur_x = status.replace[complete[y][x]] % w;
-        int cur_y = status.replace[complete[y][x]] / w;
-        int next_x = status.replace[complete[y][x - 1]] % w;
-        int next_y = status.replace[complete[y][x - 1]] / w;
-				if (cur_x == x && cur_y == y && next_x == x - 1 && next_y == y) continue;
+				if (cur_pos[complete[y][x]] % w == x && cur_pos[complete[y][x]] / w == y && cur_pos[complete[y][x - 1]] % w == x - 1 && cur_pos[complete[y][x - 1]] / w == y) continue;
 			}
 
 			// 隣りに行く
 			if (x - edge != i % w) {
 				if (x - edge < i % w)
-					move_place(status, i % w - 1, i / w, x, y, i % w, i / w);
+					move_place(status, cur_pos, i % w - 1, i / w, x, y, i % w, i / w);
 				else
-					move_place(status, i % w + 1, i / w, x, y, i % w, i / w);
+					move_place(status, cur_pos, i % w + 1, i / w, x, y, i % w, i / w);
 			}
 			else if (y + edge != i / w) {
-				move_place(status, i % w, i / w - 1, x, y, i % w, i / w);
+				move_place(status, cur_pos, i % w, i / w - 1, x, y, i % w, i / w);
 			}
 
 
@@ -294,30 +333,38 @@ void ow_solve(Status &status) {
 				dx = 1;
 			}
 			while (i % w != x - edge) {
-				move_place(status, i % w - dx, i / w, x, y, i % w, i / w);
+				move_place(status, cur_pos, i % w - dx, i / w, x, y, i % w, i / w);
 				if (status.y == i / w && status.x == i % w - dx) {
+					cur_pos[status.place[status.y][status.x + dx]] -= dx;
 					status_move(status, dx, 0);
+					cur_pos[status.place[status.y][status.x]] += dx;
 					i -= dx;
 				}
 			}
 
 			// 上下をそろえる
 			while (i / w != y + edge) {
-				move_place(status, i % w, i / w - 1, x, y, i % w, i / w);
+				move_place(status, cur_pos, i % w, i / w - 1, x, y, i % w, i / w);
 				if (status.y == i / w - 1 && status.x == i % w) {
+					cur_pos[status.place[status.y + 1][status.x]] -= w;
 					status_move(status, 0, 1);
+					cur_pos[status.place[status.y][status.x]] += w;
 					i -= w;
 				}
 			}
 
 			// 右端2列をそろえる
 			if (x == w - 1) {
-				move_place(status, x, y, x, y, x - 1, y + 1);
+				move_place(status, cur_pos, x, y, x, y, x - 1, y + 1);
 				if (status.y == y && status.x == x) {
+					cur_pos[status.place[status.y][status.x - 1]] -= -1;
 					status_move(status, -1, 0);
+					cur_pos[status.place[status.y][status.x]] += -1;
 				}
 				if (status.y == y && status.x == x - 1) {
+					cur_pos[status.place[status.y + 1][status.x]] -= w;
 					status_move(status, 0, 1);
+					cur_pos[status.place[status.y][status.x]] += w;
 				}
 			}
 			
@@ -330,52 +377,48 @@ void ow_solve(Status &status) {
 			int i, pre = (y == h - 1)?1:0;
 
 			if (y == h - 2) {
-        int cur_x = status.replace[complete[y][x]] % w;
-        int cur_y = status.replace[complete[y][x]] / w;
-        int next_x = status.replace[complete[y + 1][x]] % w;
-        int next_y = status.replace[complete[y + 1][x]] / w;
-				if (next_x == x && next_y == y && cur_x == x + 1 && cur_y == y) continue; // 初めから準備が完了しているとき
-				if (cur_x == x && cur_y == y && next_x == x && next_y == y + 1) continue; // 初めからそろってるとき
-				avoid_bad_case2(status, x, y);
-				i = status.replace[complete[h - 1][x]];
-        cur_x = status.replace[complete[y][x]] % w;
-        cur_y = status.replace[complete[y][x]] / w;
-        next_x = status.replace[complete[y + 1][x]] % w;
-        next_y = status.replace[complete[y + 1][x]] / w;
-        if (cur_x == x && cur_y == y && next_x == x && next_y == y + 1) continue; // 初めからそろってるとき
-				if (next_x == x && next_y == y && cur_x == x + 1 && cur_y == y) continue; // 初めから準備が完了しているとき
+				if (cur_pos[complete[y + 1][x]] % w == x && cur_pos[complete[y + 1][x]] / w == y && cur_pos[complete[y][x]] % w == x + 1 && cur_pos[complete[y][x]] / w == y) continue; // 初めから準備が完了しているとき
+				if (cur_pos[complete[y][x]] % w == x && cur_pos[complete[y][x]] / w == y && cur_pos[complete[y + 1][x]] % w == x && cur_pos[complete[y + 1][x]] / w == y + 1) continue; // 初めからそろってるとき
+				avoid_bad_case2(status, cur_pos, x, y);
+				i = cur_pos[complete[h - 1][x]];
+			    if (cur_pos[complete[y][x]] % w == x && cur_pos[complete[y][x]] / w == y && cur_pos[complete[y + 1][x]] % w == x && cur_pos[complete[y + 1][x]] / w == y + 1) continue; // 初めからそろってるとき
+				if (cur_pos[complete[y + 1][x]] % w == x && cur_pos[complete[y + 1][x]] / w == y && cur_pos[complete[y][x]] % w == x + 1 && cur_pos[complete[y][x]] / w == y) continue; // 初めから準備が完了しているとき
 			}
 			else {
-				i = status.replace[complete[h - 2][x]];
-        int cur_x = status.replace[complete[y][x]] % w;
-        int cur_y = status.replace[complete[y][x]] / w;
-        int next_x = status.replace[complete[y - 1][x]] % w;
-        int next_y = status.replace[complete[y - 1][x]] / w;
-				if (cur_x == x && cur_y == y && next_x == x && next_y == y - 1) continue; // 初めからそろってるとき
+				i = cur_pos[complete[h - 2][x]];
+				if (cur_pos[complete[y][x]] % w == x && cur_pos[complete[y][x]] / w == y && cur_pos[complete[y - 1][x]] % w == x && cur_pos[complete[y - 1][x]] / w == y - 1) continue; // 初めからそろってるとき
 			}
 
 
 
 			// 上下をそろえる
 			if (i / w == h - 1) {
-				move_place(status, i % w, i / w - 1, x, y, i % w, i / w);
+				move_place(status, cur_pos, i % w, i / w - 1, x, y, i % w, i / w);
+				cur_pos[status.place[status.y + 1][status.x]] -= w;
 				status_move(status, 0, 1);
+				cur_pos[status.place[status.y][status.x]] += w;
 				i -= w;
 			}
 
 			// 左右をそろえる
 			while (i % w != x + pre) {
-				move_place(status, i % w - 1, i / w, x, y, i % w, i / w);
+				move_place(status, cur_pos, i % w - 1, i / w, x, y, i % w, i / w);
+				cur_pos[status.place[status.y][status.x + 1]] -= 1;
 				status_move(status, 1, 0);
+				cur_pos[status.place[status.y][status.x]] += 1;
 				i -= 1;
 			}
 
 			// 一気にそろえる
 			if (y == h - 1) {
-				move_place(status, x, y, x, y, x + 1, y - 1);
+				move_place(status, cur_pos, x, y, x, y, x + 1, y - 1);
+				cur_pos[status.place[status.y - 1][status.x]] -= -w;
 				status_move(status, 0, -1);
+				cur_pos[status.place[status.y][status.x]] += -w;
 
+				cur_pos[status.place[status.y][status.x + 1]] -= 1;
 				status_move(status, 1, 0);
+				cur_pos[status.place[status.y][status.x]] += 1;
 			}
 		}
 	}

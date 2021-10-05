@@ -13,7 +13,7 @@ extern vector<int> goal_place;
 extern Status answer;
 extern int h, w, sel_rate, swap_rate, sel_lim, search_dir;
 
-#define TIME_LIMIT 10
+#define TIME_LIMIT 3
 
 namespace SCUT {
 	int next_eval_cost = 0;

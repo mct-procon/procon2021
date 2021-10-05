@@ -123,7 +123,8 @@ void show_table(vector<vector<int> > table) {
 				sel_place = ((sel_place / w + 1) % h) * w + sel_place % w;
 				break;
 			}
-			if (t == answer.swap_cnt[s] - 1) {
+      if (s == answer.sel_cnt - 1 && t == answer.swap_cnt[s] - 1) // Œ‹‰Ê‚Ì”Õ–Ê‚¾‚¯•\Ž¦
+      {
 				for (int y = 0; y < h; y++) {
 					for (int x = 0; x < w; x++) {
 						if (sel_place == x + y * w)
