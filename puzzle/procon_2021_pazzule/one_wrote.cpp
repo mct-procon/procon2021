@@ -295,7 +295,22 @@ void ow_solve(Status &status) {
 			else {
 				dx = 1;
 			}
-
+      //ã‰º¶‰E‚ğ‚»‚ë‚¦‚æ‚¤‚Æ‚·‚é
+      //while (ix != x - edge && iy != y + edge) {
+      //  move_place(status, ix - dx, iy, x, y, ix, iy);
+      //  if (status.y == iy && status.x == ix - dx) {
+      //    status_move(status, dx, 0);
+      //    ix -= dx;
+      //    i -= dx;
+      //  }
+      //  move_place(status, ix, iy - 1, x, y, ix, iy);
+      //  if (status.y == iy - 1 && status.x == ix) {
+      //    status_move(status, 0, 1);
+      //    iy--;
+      //    i -= w;
+      //  }
+      //}
+      //¶‰E‚ğ‚»‚ë‚¦‚é
 			while (ix != x - edge) {
 				move_place(status, ix - dx, iy, x, y, ix, iy);
 				if (status.y == iy && status.x == ix - dx) {
