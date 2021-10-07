@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <queue>
+#include <set>
 
 using namespace std;
 int PSIZE = 40;
@@ -37,7 +38,7 @@ struct piece {
 
 picture inputpic() {
 	picture res;
-	FILE* fp = fopen("pictures/NGC_2336.ppm", "rb");
+	FILE* fp = fopen("pictures/A_Sunday_on_La_Grande_Jatte.ppm", "rb");
 	if (fp == NULL) {
 		//読み込みエラー
 		assert(0);
@@ -357,7 +358,7 @@ bool output(const state& ans, const int& board_size_x, const int& board_size_y, 
 	for (int y = 0; y < div_y; y++) {
 		for (int x = 0; x < div_x; x++) {
 			if (x > 0) fprintf(fp, " ");
-			fprintf(fp, "%d", ans.direction[y][x]);
+			fprintf(fp, "%d", ans.direction[oy + y][ox + x]);
 		}
 		fprintf(fp, "\n");
 	}
@@ -376,7 +377,7 @@ bool output(const state& ans, const int& board_size_x, const int& board_size_y, 
 	for (int y = 0; y < div_y; y++) {
 		for (int x = 0; x < div_x; x++) {
 			if (x > 0) fprintf(fp, " ");
-			fprintf(fp, "%d", ans.direction[y][x]);
+			fprintf(fp, "%d", ans.direction[oy + y][ox + x]);
 		}
 		fprintf(fp, "\n");
 	}
@@ -407,6 +408,10 @@ void Main() {
 	int ax = -256 * PSIZE, ay = -256 * PSIZE;
 	int selx = -1, sely = -1;
 	int wheel, shift;
+	set<pair<int, int>> selects;
+	int select_rect_x0, select_rect_y0;
+	int select_rect_x1, select_rect_y1;
+	int select_avg_x, select_avg_y;
 	while (System::Update()) {
 		if (KeyEscape.pressed())
 			System::Exit();
@@ -439,6 +444,7 @@ void Main() {
 					sely = -1;
 				}
 			}
+			selects.clear();
 		}
 		if (MouseL.down()) {
 			selx = (Cursor::Pos().x - ax) / PSIZE;
@@ -446,6 +452,57 @@ void Main() {
 			if (selx <= 0 || selx >= board_size_x - 1 || sely <= 0 || sely >= board_size_y - 1) {
 				selx = -1;
 				sely = -1;
+			}
+			else if (ans.board[sely][selx] == -1) {
+				selx = -1;
+				sely = -1;
+			}
+			if (selx == -1) {
+				selects.clear();
+			}
+			else {
+				if (selects.empty()) {
+					selects.insert({ sely,selx });
+				}
+				for (auto [y,x] : selects) {
+					select_avg_y += y;
+					select_avg_x += x;
+				}
+				select_avg_y /= (int)selects.size();
+				select_avg_x /= (int)selects.size();
+			}
+		}
+		if (MouseR.down()) {
+			select_rect_x0 = Cursor::Pos().x - ax;
+			select_rect_y0 = Cursor::Pos().y - ay;
+		}
+		if (MouseR.up()) {
+			select_rect_x0 += ax;
+			select_rect_y0 += ay;
+			select_rect_x1 = Cursor::Pos().x;
+			select_rect_y1 = Cursor::Pos().y;
+			if (select_rect_x0 > select_rect_x1)
+				swap(select_rect_x0, select_rect_x1);
+			if (select_rect_y0 > select_rect_y1)
+				swap(select_rect_y0, select_rect_y1);
+			for (int y = 1; y < board_size_y - 1; y++) {
+				for (int x = 1; x < board_size_x - 1; x++) {
+					if (ans.board[y][x] == -1)
+						continue;
+					for (int i = 0; i <= 4; i++) {
+						int tx = (x + (i & 1)) * PSIZE + ax;
+						int ty = (y + ((i >> 1) & 1)) * PSIZE + ay;
+						if (i == 4) {
+							tx = x * PSIZE + PSIZE / 2 + ax;
+							ty = y * PSIZE + PSIZE / 2 + ay;
+						}
+						if (select_rect_x0 < tx && tx < select_rect_x1 && select_rect_y0 < ty && ty < select_rect_y1) {
+							selects.insert({ y,x });
+							break;
+						}
+					}
+					
+				}
 			}
 		}
 		if (KeyR.down() && selx != -1) {
@@ -469,13 +526,20 @@ void Main() {
 			for (int x = 1; x < board_size_x - 1; x++) {
 				if (y == sely && x == selx)
 					continue;
-				if (ans.board[y][x] == -1)
-					continue;
-				//Rect(x * 50 + ax, y * 50 + ay, x * 50 + ax + 50, y * 50 + ay + 50).draw(ColorF(1.0, 1.0, 1.0, 0.5));
+				if (ans.board[y][x] == -1) {
+					Rect(x * PSIZE + ax, y * PSIZE + ay, PSIZE, PSIZE).draw(ColorF(1.0, 1.0, 1.0, 0.1));
+				}
+				else if (MouseL.pressed() && selects.count({ y,x })) {
+					Rect(x* PSIZE + ax, y* PSIZE + ay, PSIZE, PSIZE).draw(ColorF(1.0, 1.0, 1.0, 0.1));
+				}
 				else {
 					pieces[ans.board[y][x]].tex.resized(PSIZE).rotated(90_deg * ans.direction[y][x]).draw(x * PSIZE + ax, y * PSIZE + ay);
-					if (shift)
+					if (shift) {
 						font(ans.board[y][x]).draw(x * PSIZE + ax, y * PSIZE + ay, ColorF(0.5, 0.5, 0.5, 0.8));
+					}
+					if (selects.count({ y,x })) {
+						Rect(x * PSIZE + ax, y * PSIZE + ay, PSIZE, PSIZE).drawFrame(5, ColorF(1.0, 1.0, 0, 0.5));
+					}
 				}
 			}
 		}
@@ -485,6 +549,14 @@ void Main() {
 				if (shift)
 					font(ans.board[sely][selx]).draw(Cursor::Pos().x - PSIZE / 2, Cursor::Pos().y - PSIZE / 2, ColorF(0.5, 0.5, 0.5, 0.8));
 			}
+		}
+		if (MouseL.pressed()) {
+			for (auto [y,x] : selects) {
+				pieces[ans.board[y][x]].tex.resized(PSIZE).rotated(90_deg * ans.direction[y][x]).draw(Cursor::Pos().x + (x - select_avg_x) * PSIZE + PSIZE / 2, Cursor::Pos().y + (y - select_avg_y) * PSIZE + PSIZE / 2);
+			}
+		}
+		if (MouseR.pressed()) {
+			Rect(select_rect_x0 + ax, select_rect_y0 + ay, Cursor::Pos().x - (select_rect_x0 + ax), Cursor::Pos().y - (select_rect_y0 + ay)).drawFrame(3, 0);
 		}
 	}
 
