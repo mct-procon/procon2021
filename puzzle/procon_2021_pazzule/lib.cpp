@@ -18,7 +18,7 @@ void input(vector<vector<int> > &table) {
 	int target_i;
 
 	//入力を受け取る
-	cout << "パズル手法(0:手動   1:IDA*(2nd)   2:A*(2nd)   3:強制移動　4:深さの塊　5:一筆書き　6:一筆IDA*　7:DFS一筆　8:ShortCut)>";
+	cout << "パズル手法(0:手動   1:IDA*(2nd)   2:A*(2nd)   3:強制移動　4:深さの塊　5:一筆書き　6:一筆IDA*　7:DFS一筆　8:ShortCut  9:一筆書きb)>";
 	cin >> move_style;
 	cout << "移動方向(0: 全方向 1:右と下)>";
 	cin >> search_dir;
@@ -70,7 +70,7 @@ void input(vector<vector<int> > &table) {
 
 		for (int y = 0; y < h; y++) {
 			for (int x = 0; x < w; x++)
-				printf("%2x ", complete[y][x]);
+				printf("%d ", complete[y][x]);
 			cout << endl;
 		}
 	}
@@ -100,10 +100,10 @@ void show_table(vector<vector<int> > table) {
 
 	for (int s = 0; s < answer.sel_cnt; s++) {
 		int sel_place = answer.sel_place[s];
-		cout << "選択位置: " << sel_place << endl;
+		//cout << "選択位置: " << sel_place << endl;
 		for (int t = 0; t < answer.swap_cnt[s]; t++) {
 			int past_place = sel_place;
-			cout << "移動方向: " << answer.swap_operator[s][t] << endl;
+			//cout << "移動方向: " << answer.swap_operator[s][t] << endl;
 			switch (answer.swap_operator[s][t])
 			{
 			case 'U':
@@ -123,30 +123,34 @@ void show_table(vector<vector<int> > table) {
 				sel_place = ((sel_place / w + 1) % h) * w + sel_place % w;
 				break;
 			}
-			for (int y = 0; y < h; y++) {
-				for (int x = 0; x < w; x++) {
-					if (sel_place == x + y * w)
-						printf("\033[31m%2x\033[m ", table[y][x]);
-					else if (past_place == x + y * w)
-						printf("\033[34m%2x\033[m ", table[y][x]);
-					else
-						printf("%2x ", table[y][x]);
-				}
-				cout << endl;
-			}
-			//差分を表示
-			for (int y = 0; y < h; y++) {
-				for (int x = 0; x < w; x++) {
-					int dist = 0;
-					for (int yy = 0; yy < h; yy++) {
-						for (int xx = 0; xx < w; xx++) {
-							if (table[y][x] == complete[yy][xx])
-								dist = (yy != y) + (xx != x);
-						}
+      if (s == answer.sel_cnt - 1 && t == answer.swap_cnt[s] - 1) // 結果の盤面だけ表示
+      {
+				for (int y = 0; y < h; y++) {
+					for (int x = 0; x < w; x++) {
+						if (sel_place == x + y * w)
+							printf("\033[31m%2x\033[m ", table[y][x]);
+						else if (past_place == x + y * w)
+							printf("\033[34m%2x\033[m ", table[y][x]);
+						else
+							printf("%2x ", table[y][x]);
 					}
-					printf("%2x ", dist);
+					cout << endl;
 				}
-				cout << endl;
+
+				//差分を表示
+				for (int y = 0; y < h; y++) {
+					for (int x = 0; x < w; x++) {
+						int dist = 0;
+						for (int yy = 0; yy < h; yy++) {
+							for (int xx = 0; xx < w; xx++) {
+								if (table[y][x] == complete[yy][xx])
+									dist = (yy != y) + (xx != x);
+							}
+						}
+						printf("%2x ", dist);
+					}
+					cout << endl;
+				}
 			}
 		}
 	}
@@ -176,12 +180,9 @@ void status_sellect(Status &sta, int _x, int _y) {
 	sta.sel_cnt += 1;
 	sta.sellect_cost += sel_rate;
 	sta.total_cost += sel_rate;
-	sta.sel_place.resize(sta.sel_place.size() + 1);
-	sta.sel_place[sta.sel_place.size() - 1] = sta.x + sta.y * w;
-	sta.swap_cnt.resize(sta.swap_cnt.size() + 1);
-	sta.swap_cnt[sta.swap_cnt.size() - 1] = 0;
-	sta.swap_operator.resize(sta.swap_operator.size() + 1);
-	sta.swap_operator[sta.swap_operator.size() - 1] = "";
+	sta.sel_place.push_back(sta.x + sta.y * w);
+  sta.swap_cnt.push_back(0);
+  sta.swap_operator.push_back("");
 
 	sta.compare_cost += sel_rate;
 }
@@ -313,7 +314,7 @@ void status_calc_val(Status &sta) {
 			int dis_y = min(abs(goal_y - y), w - abs(goal_y - y));
 			int dis = dis_x + dis_y;
 			sum += dis;
-			sta.dis_array[y * w + x] = dis + dis;
+			sta.dis_array[y * w + x] = dis;
 			if (dis != 0)
 				sta.dis_not_zero++;
 		}
@@ -341,7 +342,7 @@ void status_calc_val(Status &sta) {
 	if (swap_rate > sel_rate)
 		eval2 = (sta.dis_not_zero - 1) / 2 * (swap_rate + sel_rate);
 
-	sta.compare_cost = max(sta.eval_cost * swap_rate, eval2) + heuristic;
+	sta.compare_cost = sta.total_cost + max(sta.eval_cost * swap_rate, eval2) + heuristic;
 	//sta.compare_cost = sta.eval_cost * swap_rate;
 }
 

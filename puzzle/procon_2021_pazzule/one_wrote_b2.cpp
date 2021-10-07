@@ -277,10 +277,10 @@ namespace {
 }
 
 // 右下のものを持って、左上から合わせていく
-void ow_b_solve(Status &status) {
+void ow_solve(Status &status) {
 	vector<int> cur_pos(h * w);
 	for (int i = 0; i < h * w; i++) {
-		cur_pos[i] = i;
+		cur_pos[i] = status.replace[i];
 	}
 	// 初期状態だから右下にあるやつが分かる
 	status_sellect(status, complete[h - 1][w - 1] % w, complete[h - 1][w - 1] / w);
@@ -299,15 +299,18 @@ void ow_b_solve(Status &status) {
 				if (i % w == x && i / w == y) continue;
 			}
 			else if (x == w - 2) {
-
+				if (cur_pos[complete[y][x]] % w == x && cur_pos[complete[y][x]] / w == y && cur_pos[complete[y][x + 1]] % w == x + 1 && cur_pos[complete[y][x + 1]] / w == y) continue;
+				if (cur_pos[complete[y][x]] % w == x && cur_pos[complete[y][x]] / w == y + 1 && cur_pos[complete[y][x + 1]] % w == x && cur_pos[complete[y][x + 1]] / w == y) continue;
 				avoid_bad_case(status, cur_pos, x, y);
 				i = cur_pos[complete[y][w - 1]];
 				if (cur_pos[complete[y][x]] % w == x && cur_pos[complete[y][x]] / w == y && cur_pos[complete[y][x + 1]] % w == x + 1 && cur_pos[complete[y][x + 1]] / w == y) continue;
+				if (cur_pos[complete[y][x]] % w == x && cur_pos[complete[y][x]] / w == y + 1 && cur_pos[complete[y][x + 1]] % w == x && cur_pos[complete[y][x + 1]] / w == y) continue;
+
 			}
 			else if (x == w - 1) {
 				i = cur_pos[complete[y][w - 2]];
 				if (i % w == x - 1 && i / w == y + 1) continue;
-				if (cur_pos[complete[y][x]] % w == x && cur_pos[complete[y][x]] / w == y && cur_pos[complete[y][x + 1]] % w == x + 1 && cur_pos[complete[y][x + 1]] / w == y) continue;
+				if (cur_pos[complete[y][x]] % w == x && cur_pos[complete[y][x]] / w == y && cur_pos[complete[y][x - 1]] % w == x - 1 && cur_pos[complete[y][x - 1]] / w == y) continue;
 			}
 
 			// 隣りに行く
@@ -373,11 +376,20 @@ void ow_b_solve(Status &status) {
 		for (int y = h - 2; y < h; y++) {
 			int i, pre = (y == h - 1)?1:0;
 
-			if (y == h - 2)
+			if (y == h - 2) {
+				if (cur_pos[complete[y + 1][x]] % w == x && cur_pos[complete[y + 1][x]] / w == y && cur_pos[complete[y][x]] % w == x + 1 && cur_pos[complete[y][x]] / w == y) continue; // 初めから準備が完了しているとき
+				if (cur_pos[complete[y][x]] % w == x && cur_pos[complete[y][x]] / w == y && cur_pos[complete[y + 1][x]] % w == x && cur_pos[complete[y + 1][x]] / w == y + 1) continue; // 初めからそろってるとき
 				avoid_bad_case2(status, cur_pos, x, y);
+				i = cur_pos[complete[h - 1][x]];
+			    if (cur_pos[complete[y][x]] % w == x && cur_pos[complete[y][x]] / w == y && cur_pos[complete[y + 1][x]] % w == x && cur_pos[complete[y + 1][x]] / w == y + 1) continue; // 初めからそろってるとき
+				if (cur_pos[complete[y + 1][x]] % w == x && cur_pos[complete[y + 1][x]] / w == y && cur_pos[complete[y][x]] % w == x + 1 && cur_pos[complete[y][x]] / w == y) continue; // 初めから準備が完了しているとき
+			}
+			else {
+				i = cur_pos[complete[h - 2][x]];
+				if (cur_pos[complete[y][x]] % w == x && cur_pos[complete[y][x]] / w == y && cur_pos[complete[y - 1][x]] % w == x && cur_pos[complete[y - 1][x]] / w == y - 1) continue; // 初めからそろってるとき
+			}
 
-			if (y == h - 2) i = cur_pos[complete[h - 1][x]];
-			else i = cur_pos[complete[h - 2][x]];
+
 
 			// 上下をそろえる
 			if (i / w == h - 1) {

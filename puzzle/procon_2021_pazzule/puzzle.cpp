@@ -19,6 +19,7 @@
 #include "one_wrote_eval.h"
 #include "DFS_withOneWrote.h"
 #include "shortcut.h"
+#include "output_csv.h"
 using namespace std;
 
 vector<vector<unsigned char> > complete;
@@ -67,6 +68,9 @@ int main() {
 			break;
 		case SHORTCUT:
 			shortcut_solve(init_status);
+			break;
+		case OW_B:
+			ow_b_solve(init_status);
 			break;
 		}
 	}

@@ -37,7 +37,7 @@ struct piece {
 
 picture inputpic() {
 	picture res;
-	FILE* fp = fopen("problem.ppm", "rb");
+	FILE* fp = fopen("pictures/NGC_2336.ppm", "rb");
 	if (fp == NULL) {
 		//読み込みエラー
 		assert(0);
@@ -166,7 +166,7 @@ int calc_difference_score(vector<vector<unsigned char>> edge_a, vector<vector<un
 			//モザイクにしようとしたけど、最小誤差が良いのでは
 			//int mosaic = 0;
 			//int cnt = 0;
-			int mosa_width = 1;
+			int mosa_width = 5;
 			int mindiv = INT_MAX;
 			for (int x = -mosa_width; x <= mosa_width; x++) {
 				if (i + x >= 0 && i + x < edge_width) {
@@ -265,7 +265,7 @@ state search(const vector<piece>& pieces, const int16& div_x, const int16& div_y
 						diff += diff_memo[bpd][jpd];	//メモより計算
 					}
 
-					diff -= join_cnt * (INT_MAX / 100);	//多くの辺に接する形の方が良い
+					diff -= join_cnt * (INT_MAX / 1000000);	//多くの辺に接する形の方が良い
 					if (chmin(mi, diff)) {	//最も差が小さいものを選択
 						apos = nxpos;
 						apiece = join_piece;
@@ -337,11 +337,9 @@ bool output(const state& ans, const int& board_size_x, const int& board_size_y, 
 		}
 	}
 	vector<vector<int>> out_place(div_y, vector<int>(div_x));
-	vector<vector<int>> out_dir(div_y, vector<int>(div_x));
 	for (int y = oy; y < oy + div_y; y++) {
 		for (int x = ox; x < ox + div_x; x++) {
 			out_place[ans.board[y][x] / div_x][ans.board[y][x] % div_x] = (y - oy) * div_x + (x - ox);
-			out_dir[ans.board[y][x] / div_x][ans.board[y][x] % div_x] = ans.direction[y][x];
 		}
 	}
 	FILE* fp;
@@ -359,7 +357,7 @@ bool output(const state& ans, const int& board_size_x, const int& board_size_y, 
 	for (int y = 0; y < div_y; y++) {
 		for (int x = 0; x < div_x; x++) {
 			if (x > 0) fprintf(fp, " ");
-			fprintf(fp, "%d", out_dir[y][x]);
+			fprintf(fp, "%d", ans.direction[y][x]);
 		}
 		fprintf(fp, "\n");
 	}
@@ -371,14 +369,14 @@ bool output(const state& ans, const int& board_size_x, const int& board_size_y, 
 	for (int y = 0; y < div_y; y++) {
 		for (int x = 0; x < div_x; x++) {
 			if (x > 0) fprintf(fp, " ");
-			fprintf(fp, "%d", ans.board[oy+y][ox+x]);
+			fprintf(fp, "%d", ans.board[oy + y][ox + x]);
 		}
 		fprintf(fp, "\n");
 	}
 	for (int y = 0; y < div_y; y++) {
 		for (int x = 0; x < div_x; x++) {
 			if (x > 0) fprintf(fp, " ");
-			fprintf(fp, "%d", out_dir[y][x]);
+			fprintf(fp, "%d", ans.direction[y][x]);
 		}
 		fprintf(fp, "\n");
 	}
@@ -455,11 +453,16 @@ void Main() {
 		}
 		wheel = Mouse::Wheel();
 		if (wheel == 1) {
-			PSIZE--;
+			if (PSIZE != 1) {
+				PSIZE--;
+				ax -= ax / PSIZE;
+				ay -= ay / PSIZE;
+			}
 		}
 		else if (wheel == -1) {
-			if (PSIZE != 1)
-				PSIZE++;
+			PSIZE++;
+			ax += ax / PSIZE;
+			ay += ay / PSIZE;
 		}
 		shift = KeyLShift.pressed();
 		for (int y = 1; y < board_size_y - 1; y++) {
