@@ -13,7 +13,7 @@ extern vector<int> goal_place;
 extern int h, w, sel_rate, swap_rate, sel_lim, search_dir;
 
 
-namespace {
+namespace ow{
   vector<vector<bool>> dontmove;
 
 	// 目的の場所まで移動する(幅優先探索) p => 目的地 a => すでにそろえたところまで m =>　動かしちゃダメ
@@ -143,6 +143,7 @@ namespace {
 	}
 
 }
+using namespace ow;
 
 // 右下のものを持って、左上から合わせていく
 void ow_solve(Status& status) {

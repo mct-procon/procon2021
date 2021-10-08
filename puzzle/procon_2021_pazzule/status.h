@@ -1,5 +1,5 @@
 //回答データ
-#define min(x, y) (x < y)? x : y
+#define min(x, y) ((x < y)? (x) : (y))
 using namespace std;
 struct Status {
 	vector<vector<unsigned char> > place; // 場所の位置

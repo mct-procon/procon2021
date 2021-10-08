@@ -29,4 +29,5 @@ template<typename T> bool chmin(T& a, T b) {
 #define IDASD 6
 #define DFS_OW 7
 #define SHORTCUT 8
-#define OW_B 9
+#define OW_B 10
+#define OWA 9
