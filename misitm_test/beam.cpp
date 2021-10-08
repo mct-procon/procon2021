@@ -409,9 +409,10 @@ void Main() {
 	int selx = -1, sely = -1;
 	int wheel, shift;
 	set<pair<int, int>> selects;
+	int select_dir = 0;
 	int select_rect_x0, select_rect_y0;
 	int select_rect_x1, select_rect_y1;
-	int select_avg_x, select_avg_y;
+	double select_avg_x, select_avg_y;
 	while (System::Update()) {
 		if (KeyEscape.pressed())
 			System::Exit();
@@ -428,23 +429,6 @@ void Main() {
 				Print << U"Output succeeded";
 			else
 				Print << U"Output failed";
-		}
-		if (MouseL.up()) {
-			if (selx != -1) {
-				int putx = (Cursor::Pos().x - ax) / PSIZE;
-				int puty = (Cursor::Pos().y - ay) / PSIZE;
-				if (putx <= 0 || putx >= board_size_x - 1 || puty <= 0 || puty >= board_size_y - 1) {
-					selx = -1;
-					sely = -1;
-				}
-				else {
-					swap(ans.board[sely][selx], ans.board[puty][putx]);
-					swap(ans.direction[sely][selx], ans.direction[puty][putx]);
-					selx = -1;
-					sely = -1;
-				}
-			}
-			selects.clear();
 		}
 		if (MouseL.down()) {
 			selx = (Cursor::Pos().x - ax) / PSIZE;
@@ -464,12 +448,57 @@ void Main() {
 				if (selects.empty()) {
 					selects.insert({ sely,selx });
 				}
+				select_avg_y = 0;
+				select_avg_x = 0;
 				for (auto [y,x] : selects) {
-					select_avg_y += y;
-					select_avg_x += x;
+					select_avg_y += (double)y+0.5;
+					select_avg_x += (double)x+0.5;
 				}
 				select_avg_y /= (int)selects.size();
 				select_avg_x /= (int)selects.size();
+			}
+		}
+		if (MouseL.up()) {
+			bool overlapping = 0;
+			int cy = Cursor::Pos().y;
+			int cx = Cursor::Pos().x;
+			for (auto [y, x] : selects) {
+				double draw_x = x - select_avg_x, draw_y = y - select_avg_y;
+				for (int i = 0; i < select_dir; i++) {
+					double nx = draw_x, ny = draw_y;
+					draw_x = -ny;
+					draw_y = nx;
+				}
+				int ty = (cy + draw_y * PSIZE + PSIZE / 2 - ay) / PSIZE;
+				int tx = (cx + draw_x * PSIZE + PSIZE / 2 - ax) / PSIZE;
+				if (ans.board[ty][tx] != -1 && selects.count({ ty,tx }) == 0) {
+					overlapping = 1;
+					break;
+				}
+			}
+			if (!overlapping) {
+				map<pair<int, int>, int> board_mp;
+				map<pair<int, int>, int> direction_mp;
+				for (auto [y, x] : selects) {
+					board_mp[{y, x}] = ans.board[y][x];
+					direction_mp[{y, x}] = ans.direction[y][x];
+					ans.board[y][x] = -1;
+					ans.direction[y][x] = -1;
+				}
+				for (auto [y, x] : selects) {
+					double draw_x = x - select_avg_x, draw_y = y - select_avg_y;
+					for (int i = 0; i < select_dir; i++) {
+						double nx = draw_x, ny = draw_y;
+						draw_x = -ny;
+						draw_y = nx;
+					}
+					int ty = (cy + draw_y * PSIZE + PSIZE / 2 - ay) / PSIZE;
+					int tx = (cx + draw_x * PSIZE + PSIZE / 2 - ax) / PSIZE;
+					ans.board[ty][tx] = board_mp[{y, x}];
+					ans.direction[ty][tx] = (direction_mp[{y, x}] + select_dir)%4;
+				}
+				select_dir = 0;
+				selects.clear();
 			}
 		}
 		if (MouseR.down()) {
@@ -505,8 +534,8 @@ void Main() {
 				}
 			}
 		}
-		if (KeyR.down() && selx != -1) {
-			ans.direction[sely][selx] = (ans.direction[sely][selx] + 1) % 4;
+		if (KeyR.down() && !selects.empty()) {
+			select_dir = (select_dir + 1) % 4;
 		}
 		wheel = Mouse::Wheel();
 		if (wheel == 1) {
@@ -524,8 +553,6 @@ void Main() {
 		shift = KeyLShift.pressed();
 		for (int y = 1; y < board_size_y - 1; y++) {
 			for (int x = 1; x < board_size_x - 1; x++) {
-				if (y == sely && x == selx)
-					continue;
 				if (ans.board[y][x] == -1) {
 					Rect(x * PSIZE + ax, y * PSIZE + ay, PSIZE, PSIZE).draw(ColorF(1.0, 1.0, 1.0, 0.1));
 				}
@@ -543,16 +570,15 @@ void Main() {
 				}
 			}
 		}
-		if (selx != -1) {
-			if (ans.board[sely][selx] != -1) {
-				pieces[ans.board[sely][selx]].tex.resized(PSIZE).rotated(90_deg * ans.direction[sely][selx]).draw(Cursor::Pos().x - PSIZE / 2, Cursor::Pos().y - PSIZE / 2);
-				if (shift)
-					font(ans.board[sely][selx]).draw(Cursor::Pos().x - PSIZE / 2, Cursor::Pos().y - PSIZE / 2, ColorF(0.5, 0.5, 0.5, 0.8));
-			}
-		}
 		if (MouseL.pressed()) {
 			for (auto [y,x] : selects) {
-				pieces[ans.board[y][x]].tex.resized(PSIZE).rotated(90_deg * ans.direction[y][x]).draw(Cursor::Pos().x + (x - select_avg_x) * PSIZE + PSIZE / 2, Cursor::Pos().y + (y - select_avg_y) * PSIZE + PSIZE / 2);
+				double draw_x = x - select_avg_x, draw_y = y - select_avg_y;
+				for (int i = 0; i < select_dir; i++) {
+					double nx = draw_x, ny = draw_y;
+					draw_x = -ny;
+					draw_y = nx;
+				}
+				pieces[ans.board[y][x]].tex.resized(PSIZE).rotated(90_deg * ((ans.direction[y][x] + select_dir)%4)).draw(Cursor::Pos().x + draw_x * PSIZE, Cursor::Pos().y + draw_y * PSIZE);
 			}
 		}
 		if (MouseR.pressed()) {
