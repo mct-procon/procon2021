@@ -5,7 +5,7 @@
 #include <cassert>
 #include "status.h"
 #include "lib.h"
-#define abs(x) ((x > 0) ? x : -x)
+//#define abs(x) ((x > 0) ? x : -x)
 using namespace std;
 extern vector<vector<unsigned char> > complete;
 extern Status answer;
@@ -17,167 +17,71 @@ namespace {
   vector<vector<bool>> dontmove;
 
 	// 目的の場所まで移動する(幅優先探索) p => 目的地 a => すでにそろえたところまで m =>　動かしちゃダメ
-	void move_place(Status& status, int px, int py) {
-		vector<vector<int> > table(h, vector<int>(w, 256));
-		vector<int> route;
-		queue<pair<int, int> > q;
-		int dx[4] = { 0, 1, 0, -1 }, dy[4] = { 1, 0, -1, 0 }, nx = px, ny = py, x, i;
+  void move_place(Status& status, int px, int py) {
+    vector<vector<int> > table(h, vector<int>(w, INT_MAX));
+    vector<int> route;
+    vector<vector<int>> prev(h, vector<int>(w, -1));
+    queue<pair<int, int> > q;
+    int dx[4] = { 0, 1, 0, -1 }, dy[4] = { 1, 0, -1, 0 }, nx = px, ny = py, x, i;
 
-		// 探索
+    // 探索
     q.push(make_pair(status.x, status.y));
-		table[status.y][status.x] = 0;
-		while (table[py][px] == 256) {
-      if (q.empty()) {
-        return;
-        assert(false);
+    table[status.y][status.x] = 0;
+    while (!q.empty()) {
+      
+      pair<int, int> p = q.front(); q.pop();
+      int x = p.first, y = p.second;
+      for (int k = 0; k < 4; k++) {
+        int next_x = (x + dx[k] + w) % w, next_y = (y + dy[k] + h) % h;
+        if (dontmove[next_y][next_x]) continue;
+
+        int cnt = table[y][x] + 5;
+
+        //持ってないピースの
+        int goal_x = goal_place[status.place[next_y][next_x]] % w;
+        int goal_y = goal_place[status.place[next_y][next_x]] / w;	//目的地
+        //評価値差分
+        int pas_x = min(abs(goal_x - next_x), w - abs(goal_x - next_x));
+        int pas_y = min(abs(goal_y - next_y), w - abs(goal_y - next_y));
+        int pas_dis = pas_x + pas_y;
+        int new_x = min(abs(goal_x - x), w - abs(goal_x - x));
+        int new_y = min(abs(goal_y - y), w - abs(goal_y - y));
+        int new_dis = new_x + new_y;
+        cnt += new_dis - pas_dis;
+        if (table[next_y][next_x] <= cnt) continue;
+
+        table[next_y][next_x] = cnt;
+        prev[next_y][next_x] = (k + 2) % 4;
+
+        if (table[py][px] != INT_MAX) continue;
+        q.push(make_pair(next_x, next_y));
       }
-			pair<int, int> p = q.front(); q.pop();
-			int x = p.first, y = p.second;
-			for (int k = 0; k < 4; k++) {
-				int next_x = (x + dx[k] + w) % w, next_y = (y + dy[k] + h) % h;
-				if (table[next_y][next_x] != 256) continue;
-				if (dontmove[next_y][next_x]) continue;
-
-				table[next_y][next_x] = table[y][x] + 1;
-
-				q.push(make_pair(next_x, next_y));
-			}
-		}
+    }
+    if (table[py][px] == INT_MAX)
+      return;
+    assert(table[py][px] != INT_MAX);
 
 
-		// 復元
-		i = 0;
-		route.resize(table[py][px]);
-		for (int i = 0; i < table[py][px]; i++) {
-			int res_k = -1;
-			int res_num = 256;
-			for (int k = 0; k < 4; k++) {
-				int next_x = (nx + dx[k] + w) % w, next_y = (ny + dy[k] + h) % h;
-				if (table[next_y][next_x] < res_num) {
-					res_num = table[next_y][next_x];
-					res_k = k;
-				}
-			}
-			nx += dx[res_k];
-			ny += dy[res_k];
-			route[table[py][px] - i - 1] = (res_k + 2) % 4;
-		}
+    // 復元
+    i = 0;
+    while (!(status.y == ny && status.x == nx)) {
+      int res_k = prev[ny][nx];
+      prev[ny][nx] = -1;
+      assert(res_k != -1);
+      nx = (nx + dx[res_k] + w) % w;
+      ny = (ny + dy[res_k] + h) % h;
+      route.push_back((res_k + 2) % 4);
+    }
+    reverse(route.begin(), route.end());
 
-		//移動
-		for (i = 0; i < table[py][px]; i++) {
-			status_move(status, dx[route[i]], dy[route[i]]);
-		}
+    //移動
+    for (i = 0; i < route.size(); i++) {
+      status_move(status, dx[route[i]], dy[route[i]]);
+    }
+    assert(status.x == px && status.y == py);
 
-	}
+  }
 
-	//　右端2列のそろえにくい場合の対処
-	void avoid_bad_case(Status& status, int x, int y) {
-		int R = w - 1, L = w - 2;
-		unsigned char compL = complete[y][L], compR = complete[y][R];
-		if (status.place[y + 1][L] == compR && status.place[y][R] == compL && status.x == L && status.y == y) {
-			status_move(status, 1, 0);
-		}
-
-		if (status.place[y + 1][L] == compL && status.place[y][R] == compR && status.y == y) {
-			status_move(status, 0, 1);
-		}
-
-		if (status.place[y][L] == compR && status.place[y][R] == compL) {
-			move_place(status, L, y + 1);
-			status_move(status, 0, -1);
-		}
-
-		if (status.place[y + 1][L] == compR && status.place[y][R] == compL && status.x == w - 2 && status.y == y) {
-			status_move(status, 1, 0);
-		}
-
-		if (status.place[y + 1][L] == compL && status.place[y + 1][R] == compR) {
-			move_place(status, L, y);
-			status_move(status, 0, 1);
-		}
-
-		if (status.place[y + 1][L] == compL && ((status.x == x && status.y == y) || (status.x == x + 1 && status.y == y))) {
-			move_place(status, R, y + 1);
-		}
-
-		if (status.place[y][L] == compL && status.place[y + 1][L] == compR) {
-			move_place(status, w - 3, y + 1);
-			status_move(status, 1, 0);
-		}
-		if (status.place[y][L] == compL && status.place[y + 1][R] == compR) {
-			move_place(status, R, y + 2);
-			status_move(status, 0, -1);
-		}
-		if (status.place[y][L] == compL) {
-			move_place(status, R, y);
-			status_move(status, -1, 0);
-		}
-
-		if (status.place[y][R] == compR && status.place[y + 1][R] == compL) {
-			move_place(status, R, y + 2);
-			status_move(status, 0, -1);
-		}
-	}
-
-	// 下の2段がそろえにくいときの対処法
-	void avoid_bad_case2(Status& status, int x, int y) {
-		if (status.place[h - 2][x + 1] == complete[h - 2][x]) {
-			move_place(status, x + 2, h - 2);
-			status_move(status, -1, 0);
-		}
-
-		if (status.place[h - 2][x] == complete[h - 1][x] && status.place[h - 1][x] == complete[h - 2][x]) {
-			move_place(status, x + 1, h - 1);
-			status_move(status, -1, 0);
-
-			status_move(status, 0, -1);
-		}
-
-		if (status.place[h - 1][x] == complete[h - 1][x] && status.place[h - 2][x + 1] == complete[h - 2][x]) {
-			if (status.x == x && status.y == h - 2) {
-				status_move(status, 1, 0);
-			}
-			else {
-				move_place(status, x + 2, h - 2);
-				status_move(status, -1, 0);
-			}
-		}
-
-		if (status.place[h - 2][x] == complete[h - 2][x] && status.place[h - 1][x + 1] == complete[h - 1][x]) {
-			if (status.x == x && status.y == h - 1) {
-				status_move(status, 1, 0);
-			}
-			else {
-				move_place(status, x + 2, h - 1);
-				status_move(status, -1, 0);
-			}
-		}
-
-		if (status.place[h - 2][x + 1] == complete[h - 1][x] && status.place[h - 1][x] == complete[h - 2][x] && status.x == x && status.y == h - 2) {
-			status_move(status, 0, 1);
-		}
-		if (status.place[h - 2][x] == complete[h - 1][x] && status.place[h - 1][x + 1] == complete[h - 2][x] && status.x == x && status.y == h - 1) {
-			status_move(status, 0, -1);
-		}
-		if (status.place[h - 1][x] == complete[h - 1][x] && status.place[h - 1][x + 1] == complete[h - 2][x]) {
-			move_place(status, x + 2, h - 1);
-			status_move(status, -1, 0);
-		}
-
-		if (status.place[h - 2][x] == complete[h - 2][x] && status.place[h - 2][x + 1] == complete[h - 1][x]) {
-			move_place(status, x + 2, h - 2);
-			status_move(status, -1, 0);
-		}
-
-		if (status.place[h - 2][x] == complete[h - 2][x] && status.place[h - 1][x + 1] == complete[h - 1][x]) {
-			move_place(status, x + 2, h - 1);
-			status_move(status, -1, 0);
-		}
-		if (status.place[h - 2][x] == complete[h - 2][x]) {
-			move_place(status, x, h - 1);
-			status_move(status, 0, -1);
-		}
-	}
 
 	// 4マスぐるぐるのときの隣り合う2マスがそろったかの判定
 	int check_two_pass(vector<vector<unsigned char> >& place) {
@@ -260,7 +164,10 @@ void ow_solve(Status& status) {
       i = status.replace[complete[y][x]];
       int ix = i % w;
       int iy = i / w;
-      if (ix == x && iy == y) continue;
+      if (ix == x && iy == y) {
+        dontmove[y][x] = 1;
+        continue;
+      }
 
       if (x == w - 1) {
 
@@ -288,28 +195,21 @@ void ow_solve(Status& status) {
           dontmove[iy][ix] = 1;
           move_place(status, next_ix, iy);
           dontmove[iy][ix] = 0;
-          if (status.y == iy && status.x == next_ix) {
-            status_move(status, dx, 0);
-            i = i - ix + next_ix;
-            ix = next_ix;
-          }
-          else {
-            assert(false);
-          }
+          assert(status.y == iy && status.x == next_ix);
+          status_move(status, dx, 0);
+          i = i - ix + next_ix;
+          ix = next_ix;
+
           int next_iy = iy - dy;
           if (next_iy < 0) next_iy = h - 1;
           if (next_iy >= h) next_iy = 0;
           dontmove[iy][ix] = 1;
           move_place(status, ix, next_iy);
           dontmove[iy][ix] = 0;
-          if (status.y == next_iy && status.x == ix) {
-            status_move(status, 0, dy);
-            i = i - (iy + next_iy) * w;
-            iy = next_iy;
-          }
-          else {
-            assert(false);
-          }
+          assert(status.y == next_iy && status.x == ix);
+          status_move(status, 0, dy);
+          i = i - (iy + next_iy) * w;
+          iy = next_iy;
         }
         //左右をそろえる
         while (ix != nx) {
@@ -319,14 +219,10 @@ void ow_solve(Status& status) {
           dontmove[iy][ix] = 1;
           move_place(status, next_ix, iy);
           dontmove[iy][ix] = 0;
-          if (status.y == iy && status.x == next_ix) {
-            status_move(status, dx, 0);
-            i = i - ix + next_ix;
-            ix = next_ix;
-          }
-          else {
-            assert(false);
-          }
+          assert(status.y == iy && status.x == next_ix);
+          status_move(status, dx, 0);
+          i = i - ix + next_ix;
+          ix = next_ix;
         }
         // 上下をそろえる
         while (iy != ny) {
@@ -336,14 +232,10 @@ void ow_solve(Status& status) {
           dontmove[iy][ix] = 1;
           move_place(status, ix, next_iy);
           dontmove[iy][ix] = 0;
-          if (status.y == next_iy && status.x == ix) {
-            status_move(status, 0, dy);
-            i = i - (iy + next_iy) * w;
-            iy = next_iy;
-          }
-          else {
-            assert(false);
-          }
+          assert(status.y == next_iy && status.x == ix);
+          status_move(status, 0, dy);
+          i = i - (iy + next_iy) * w;
+          iy = next_iy;
         }
 
         dontmove[iy][ix] = 1;
@@ -362,6 +254,7 @@ void ow_solve(Status& status) {
 
         dontmove[iy][ix] = 0;
         dontmove[y][x] = 1;
+        assert(status.place[y][x] == complete[y][x]);
 
         continue;
       }
@@ -384,28 +277,21 @@ void ow_solve(Status& status) {
         dontmove[iy][ix] = 1;
         move_place(status, next_ix, iy);
         dontmove[iy][ix] = 0;
-        if (status.y == iy && status.x == next_ix) {
-          status_move(status, dx, 0);
-          i = i - ix + next_ix;
-          ix = next_ix;
-        }
-        else {
-          assert(false);
-        }
+        assert(status.y == iy && status.x == next_ix);
+        status_move(status, dx, 0);
+        i = i - ix + next_ix;
+        ix = next_ix;
+
         int next_iy = iy - dy;
         if (next_iy < 0) next_iy = h - 1;
         if (next_iy >= h) next_iy = 0;
         dontmove[iy][ix] = 1;
         move_place(status, ix, next_iy);
         dontmove[iy][ix] = 0;
-        if (status.y == next_iy && status.x == ix) {
-          status_move(status, 0, dy);
-          i = i - (iy + next_iy) * w;
-          iy = next_iy;
-        }
-        else {
-          assert(false);
-        }
+        assert(status.y == next_iy && status.x == ix);
+        status_move(status, 0, dy);
+        i = i - (iy + next_iy) * w;
+        iy = next_iy;
       }
       //左右をそろえる
       while (ix != x) {
@@ -415,14 +301,10 @@ void ow_solve(Status& status) {
         dontmove[iy][ix] = 1;
         move_place(status, next_ix, iy);
         dontmove[iy][ix] = 0;
-        if (status.y == iy && status.x == next_ix) {
-          status_move(status, dx, 0);
-          i = i - ix + next_ix;
-          ix = next_ix;
-        }
-        else {
-          assert(false);
-        }
+        assert(status.y == iy && status.x == next_ix);
+        status_move(status, dx, 0);
+        i = i - ix + next_ix;
+        ix = next_ix;
       }
       // 上下をそろえる
       while (iy != y) {
@@ -432,19 +314,15 @@ void ow_solve(Status& status) {
         dontmove[iy][ix] = 1;
         move_place(status, ix, next_iy);
         dontmove[iy][ix] = 0;
-        if (status.y == next_iy && status.x == ix) {
-          status_move(status, 0, dy);
-          i = i - (iy + next_iy) * w;
-          iy = next_iy;
-        }
-        else {
-          assert(false);
-        }
+        assert(status.y == next_iy && status.x == ix);
+        status_move(status, 0, dy);
+        i = i - (iy + next_iy) * w;
+        iy = next_iy;
       }
 
       assert(status.place[y][x] == complete[y][x]);
       assert(y == iy && x == ix);
-      dontmove[iy][ix] = 1;
+      dontmove[y][x] = 1;
     }
   }
 
@@ -456,11 +334,15 @@ void ow_solve(Status& status) {
       i = status.replace[complete[y][x]];
       int ix = i % w;
       int iy = i / w;
-      if (ix == x && iy == y) continue;
+      if (ix == x && iy == y) {
+        dontmove[y][x] = 1;
+        continue;
+      }
 
 
       if (y == h - 2) {
         // 左右をそろえる
+        assert(ix >= x);
         while (ix > x) {
           dontmove[iy][ix] = 1;
           move_place(status, ix - 1, iy);
@@ -469,6 +351,7 @@ void ow_solve(Status& status) {
           ix--;
           i -= 1;
         }
+        assert(ix == x);
         // 上下をそろえる
         if (iy > y) {
           dontmove[iy][ix] = 1;
@@ -478,10 +361,12 @@ void ow_solve(Status& status) {
           iy--;
           i -= w;
         }
+        assert(iy == y);
         if (status.y == h - 1)
           status_move(status, 1, 0);
 
         dontmove[y][x] = 1;
+        assert(status.place[y][x] == complete[y][x]);
         continue;
       }
       else {
@@ -526,6 +411,7 @@ void ow_solve(Status& status) {
         status_move(status, 1, 0);
         dontmove[iy][ix] = 0;
         dontmove[y][x] = 1;
+        assert(status.place[y][x] == complete[y][x]);
       }
 
     }

@@ -333,17 +333,12 @@ void status_calc_val(Status &sta) {
 	sta.eval_cost = max({sum / 2 + (sum & 1), sta.dis_top1 + sta.dis_top2 - 1 });
 	//sta.eval_cost = sum / 2 + (sum & 1);
 
-	int heuristic = 0;
-	if (sta.dis_top2 > 1) {
-		heuristic += min(swap_rate * 2, sel_rate);
-	}
-
 	int eval2 = (sta.dis_not_zero - 1) * swap_rate;
 	if (swap_rate > sel_rate)
 		eval2 = (sta.dis_not_zero - 1) / 2 * (swap_rate + sel_rate);
 
-	sta.compare_cost = sta.total_cost + max(sta.eval_cost * swap_rate, eval2) + heuristic;
-	//sta.compare_cost = sta.eval_cost * swap_rate;
+	sta.compare_cost = sta.total_cost + max(sta.eval_cost * swap_rate, eval2);
+	//sta.compare_cost = sta.total_cost + sta.eval_cost * swap_rate;
 }
 
 // ·•ª‚É‚æ‚è•]‰¿’lXV
@@ -403,17 +398,8 @@ void status_update_val(Status& sta, int dx, int dy) {
 	if (swap_rate > sel_rate)
 		eval2 = (sta.dis_not_zero - 1) / 2 * (swap_rate + sel_rate);
 
-	int heuristic = 0;
-	int heuristic_all = 0;
-	if (sta.dis_top2 > 1) {
-		heuristic += min(swap_rate, sel_rate);
-		heuristic_all += min(swap_rate, sel_rate);
-	}
-	if (sta.dis_array[sta.y * w + sta.x] == 0 && sta.dis_not_zero != 0) {
-		heuristic_all += min(swap_rate*2, sel_rate);
-	}
 
-	sta.compare_cost = sta.total_cost + max(sta.eval_cost * swap_rate + heuristic, eval2) + heuristic_all;
+	sta.compare_cost = sta.total_cost + max(sta.eval_cost * swap_rate, eval2);
 	//sta.compare_cost = sta.total_cost + sta.eval_cost * swap_rate;
 }
 

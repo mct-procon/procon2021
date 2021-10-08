@@ -13,7 +13,7 @@ extern vector<int> goal_place;
 extern Status answer;
 extern int h, w, sel_rate, swap_rate, sel_lim, search_dir;
 
-#define TIME_LIMIT 3
+#define TIME_LIMIT 5
 
 namespace SCUT {
 	int next_eval_cost = 0;
@@ -27,6 +27,7 @@ namespace SCUT {
 	Status mid_answer;
 	clock_t start;
 	int sel_resi;
+  int maxlength = 5;
 }
 using namespace SCUT;
 bool idastar_sc(int goal_eval_cost, Status& sta) {
@@ -170,12 +171,9 @@ void shortcut(Status sta, Status pre_answer) {
 
 	//‰ğ‚ğ’Zk‚µ‚Ä‚¢‚­
 	start = clock();
-	int length = 20;  //‚±‚Ì’·‚³ŠÔŠu‚Åˆ³k
+	int length = maxlength;  //‚±‚Ì’·‚³ŠÔŠu‚Åˆ³k
 	int end_num = 0;  //length‚ÌŠÔŠu‚Å”²‚«æ‚Á‚½I‚í‚è‚Ì”Ô†
 	int begin_num = 0;//length‚ÌŠÔŠu‚Å”²‚«æ‚Á‚½‚Í‚¶‚ß‚Ì”Ô†
-	if (operation[end_num-1] >= 5) {  //‘I‘ğ‘€ì‚ÅI‚í‚éê‡‚ğ”rœ
-		end_num++;
-	}
 	Status end_sta = sta_array[end_num];  //”²‚«æ‚Á‚½I‚í‚è‚Ì”Õ–Ê
 	auto pre_comp = complete; //complete‚ğ•ÏX‚·‚é‚Ì‚ÅƒoƒbƒNƒAƒbƒv‚ğ‚Æ‚é
 	while ((clock() - start) / CLOCKS_PER_SEC < TIME_LIMIT)
@@ -186,7 +184,7 @@ void shortcut(Status sta, Status pre_answer) {
     //
 		begin_num = end_num;
 		mid_begin_sel = mid_sel;
-		length = rand() % 10 + 10;	//‚·‚®û‘©‚µ‚È‚¢‚æ‚¤‚Éƒ‰ƒ“ƒ_ƒ€‚È’·‚³
+		//length = rand() % 10 + maxlength;	//‚·‚®û‘©‚µ‚È‚¢‚æ‚¤‚Éƒ‰ƒ“ƒ_ƒ€‚È’·‚³
 		end_num += length;
 		if (end_num >= sta_array_size - 1) {
 			end_num = sta_array_size - 1;
@@ -297,15 +295,21 @@ void shortcut(Status sta, Status pre_answer) {
 void shortcut_solve(Status& sta) {
 	Status pre_answer = sta;
 	ow_solve(pre_answer);
+  //output_csv(sta, answer, "ow_solve.csv");
 	shortcut(sta, pre_answer);
 	assert(answer.sel_cnt <= sel_lim);
 	assert(answer.place == complete);
 	clock_t start = clock();
-	while ((clock() - start) / CLOCKS_PER_SEC < TIME_LIMIT * 3) {
+	while ((clock() - start) / CLOCKS_PER_SEC < TIME_LIMIT * 5) {
 		pre_answer = answer;
+    int pre_cost = pre_answer.total_cost;
+    cout << maxlength << endl;
 		shortcut(sta, pre_answer);
+    if (pre_cost <= answer.total_cost + answer.total_cost / 10000) {
+      maxlength+=5;
+    }
 		assert(answer.sel_cnt <= sel_lim);
 		assert(answer.place == complete);
 	}
-	output_csv(sta, answer, "ShortCut.csv");
+	//output_csv(sta, answer, "ShortCut.csv");
 }
