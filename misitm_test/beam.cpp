@@ -38,7 +38,7 @@ struct piece {
 
 picture inputpic() {
 	picture res;
-	FILE* fp = fopen("pictures/A_Sunday_on_La_Grande_Jatte.ppm", "rb");
+	FILE* fp = fopen("pictures/problem.ppm", "rb");
 	if (fp == NULL) {
 		//読み込みエラー
 		assert(0);
@@ -167,7 +167,7 @@ int calc_difference_score(vector<vector<unsigned char>> edge_a, vector<vector<un
 			//モザイクにしようとしたけど、最小誤差が良いのでは
 			//int mosaic = 0;
 			//int cnt = 0;
-			int mosa_width = 5;
+			int mosa_width = 3;
 			int mindiv = INT_MAX;
 			for (int x = -mosa_width; x <= mosa_width; x++) {
 				if (i + x >= 0 && i + x < edge_width) {
@@ -403,6 +403,7 @@ void Main() {
 
 	state ans = search(pieces, pic.div_x, pic.div_y, pic.size_x / pic.div_x);
 
+	Print << pic.div_y << U"x" << pic.div_x;
 	const int board_size_x = 520;
 	const int board_size_y = 520;
 	int ax = -256 * PSIZE, ay = -256 * PSIZE;
