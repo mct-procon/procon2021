@@ -72,6 +72,9 @@ int main() {
 		case OW_B:
 			ow_b_solve(init_status);
 			break;
+		case OWA:
+			owa_solve(init_status);
+			break;
 		}
 	}
 

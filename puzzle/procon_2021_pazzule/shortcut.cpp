@@ -294,7 +294,7 @@ void shortcut(Status sta, Status pre_answer) {
 
 void shortcut_solve(Status& sta) {
 	Status pre_answer = sta;
-	ow_solve(pre_answer);
+	owa_solve(pre_answer);
   //output_csv(sta, answer, "ow_solve.csv");
 	shortcut(sta, pre_answer);
 	assert(answer.sel_cnt <= sel_lim);
