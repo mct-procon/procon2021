@@ -54,7 +54,9 @@ picture inputpic() {
 	fscanf(fp, "# %d\n", &res.select_lim);
 	fscanf(fp, "# %d %d\n", &res.select_cost, &res.swap_cost);
 	fscanf(fp, "%d %d\n", &res.size_x, &res.size_y);
-	fscanf(fp, "%d\n", &res.color_max);
+	//fscanf(fp, "%d\n", &res.color_max);
+	int tmp;
+	fread(&tmp, 4, 1, fp); //読み込みバグ対策
 	res.pix = vector<vector<vector<unsigned char>>>(res.size_y, vector<vector<unsigned char>>(res.size_x, vector<unsigned char>(3)));
 
 	for (int i = 0; i < res.size_y; i++) {
