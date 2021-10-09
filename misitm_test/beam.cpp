@@ -344,6 +344,7 @@ bool output(const state& ans, const int& board_size_x, const int& board_size_y, 
 		}
 	}
 	FILE* fp;
+	/*
 	fp = fopen("output.txt", "w");
 	fprintf(fp, "%d %d\n", div_y, div_x);
 	fprintf(fp, "%d\n", select_lim);
@@ -363,6 +364,7 @@ bool output(const state& ans, const int& board_size_x, const int& board_size_y, 
 		fprintf(fp, "\n");
 	}
 	fclose(fp);
+	*/
 	fp = fopen("output2.txt", "w");
 	fprintf(fp, "%d %d\n", div_y, div_x);
 	fprintf(fp, "%d\n", select_lim);
