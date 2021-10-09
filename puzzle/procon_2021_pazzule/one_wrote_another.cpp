@@ -22,6 +22,20 @@ namespace owa {
     if (ax == bx && ay == by) return 0;
     int x = min(abs(ax - bx), w - abs(ax - bx));
     int y = min(abs(ay - by), h - abs(ay - by));
+    //int y = abs(ay - by);
+    int d = abs(x - y);
+    int m = min(x, y);
+    int ret = d * 5 + m * 6 - 4;
+    if (x == y)
+      ret += 2;
+    return ret;
+  }
+  int kyu_distance2(int ax, int ay, int bx, int by) {
+    if (ax == bx && ay == by) return 0;
+    //int x = min(abs(ax - bx), w - abs(ax - bx));
+    //int y = min(abs(ay - by), h - abs(ay - by));
+    int x = abs(ax - bx);
+    int y = abs(ay - by);
     int d = abs(x - y);
     int m = min(x, y);
     int ret = d * 5 + m * 6 - 4;
@@ -45,6 +59,7 @@ namespace owa {
     vector<vector<bool>> used(h, vector<bool>(w, 0));
     int  nx = px, ny = py, x, i;
 
+
     // 探索
     q.push(make_pair(0, make_pair(status.x, status.y)));
     table[status.y][status.x] = 0;
@@ -58,7 +73,7 @@ namespace owa {
         if (dontmove[next_y][next_x]) continue;
         if (used[next_y][next_x]) continue;
 
-        int cnt = table[y][x] + 1;
+        int cnt = table[y][x] + 2;
 
         //持ってないピースの
         int goal_x = goal_place[status.place[next_y][next_x]] % w;
@@ -265,14 +280,70 @@ void owa_solve(Status& status) {
   }
 
   // そろえたい数字=>complete[y][x] その数字の現在地=>status.replace[complete[y][x]] 目標=>status.replace[complete[y][x]] == y * w + x
-  for (int k = 0; k < max(h, w) - 2; k++) {
-    for (int y = 0; y <= k && y < h - 2; y++) {
-      for (int x = 0; x <= k && x < w - 2; x++) {
-        nomalmove(status, x, y);
-      }
+
+  //真ん中からぐるぐる
+  int cen = (min(h, w) - 3) / 2;
+  for (int k = 0; k <= cen; k++) {
+    //左列
+    for (int y = cen + k - 1; y >= cen - k; y--) {
+      int x = cen - k;
+      nomalmove(status, x, y);
+    }
+    //上
+    for (int x = cen - k + 1; x <= cen + k; x++) {
+      int y = cen - k;
+      nomalmove(status, x, y);
+    }
+    //右
+    for (int y = cen - k + 1; y <= cen + k; y++) {
+      int x = cen + k;
+      nomalmove(status, x, y);
+    }
+    //下
+    for (int x = cen + k; x >= cen - k; x--) {
+      int y = cen + k;
+      nomalmove(status, x, y);
     }
   }
 
+  //上から左から
+  //for (int k = 0; k < max(h, w) - 2; k++) {
+  //  for (int y = 0; y <= k && y < h - 2; y++) {
+  //    for (int x = 0; x <= k && x < w - 2; x++) {
+  //      nomalmove(status, x, y);
+  //    }
+  //  }
+  //}
+
+  //折り返す動き
+  bool turn = 0;
+  for (int k = 0; k < max(h, w) - 2; k++) {
+    if (turn) {
+      if (k < h-2 && !dontmove[k][0]) {
+        for (int x = 0; x <= min(k, w - 3); x++) {
+          nomalmove(status, x, k);
+        }
+      }
+      if (k < w - 2 && !dontmove[0][k]) {
+        for (int y = min(k, h - 3); y >= 0; y--) {
+          nomalmove(status, k, y);
+        }
+      }
+    }
+    else {
+      if (k < w - 2 && !dontmove[0][k]) {
+        for (int y = 0; y <= min(k, h - 3); y++) {
+          nomalmove(status, k, y);
+        }
+      }
+      if (k < h - 2 && !dontmove[k][0]) {
+        for (int x = min(k, w - 3); x >= 0; x--) {
+          nomalmove(status, x, k);
+        }
+      }
+    }
+    turn = !turn;
+  }
 
   // 右2列
   for (int y = 0; y < h - 2; y++) {
@@ -360,6 +431,7 @@ void owa_solve(Status& status) {
 
     }
   }
+  
 
   // 下2列
   for (int x = 0; x < w - 2; x++) {
@@ -452,4 +524,5 @@ void owa_solve(Status& status) {
     rota_last(status, -1);
 
   answer = status;
+  //cout << answer.total_cost << endl;
 }
