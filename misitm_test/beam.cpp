@@ -8,7 +8,7 @@
 #include <set>
 
 using namespace std;
-int PSIZE = 40;
+int PSIZE = 64;
 
 bool chmin(int& a, int b) {
 	if (a > b) {
@@ -544,16 +544,22 @@ void Main() {
 		}
 		wheel = Mouse::Wheel();
 		if (wheel == 1) {
-			if (PSIZE != 1) {
-				PSIZE--;
-				ax -= ax / PSIZE;
-				ay -= ay / PSIZE;
+			int dec_psz = PSIZE/2;
+			if (PSIZE-dec_psz>=1) {
+				for (int i = 0; i < dec_psz; i++) {
+					ax -= (ax - Cursor::Pos().x) / PSIZE;
+					ay -= (ay - Cursor::Pos().y) / PSIZE;
+					PSIZE--;
+				}
 			}
 		}
 		else if (wheel == -1) {
-			PSIZE++;
-			ax += ax / PSIZE;
-			ay += ay / PSIZE;
+			int inc_psz = PSIZE;
+			for (int i = 0; i < inc_psz; i++) {
+				ax += (ax - Cursor::Pos().x) / PSIZE;
+				ay += (ay - Cursor::Pos().y) / PSIZE;
+				PSIZE++;
+			}
 		}
 		shift = KeyLShift.pressed();
 		Rect(board_size_x/2*PSIZE+ax, board_size_y / 2 * PSIZE+ay, pic.div_x* PSIZE, pic.div_y*PSIZE).drawFrame(5, ColorF(1.0, 0, 0, 0.2));
@@ -573,6 +579,9 @@ void Main() {
 					if (selects.count({ y,x })) {
 						Rect(x * PSIZE + ax, y * PSIZE + ay, PSIZE, PSIZE).drawFrame(5, ColorF(1.0, 1.0, 0, 0.5));
 					}
+				}
+				if (ans.board[y][x] == 0) {
+					font(U"dir of 0 : {}"_fmt(ans.direction[y][x])).draw(1100, 0, ColorF(0.5, 0.5, 0.5, 0.8));
 				}
 			}
 		}
