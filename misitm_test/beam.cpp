@@ -38,7 +38,7 @@ struct piece {
 
 picture inputpic() {
 	picture res;
-	FILE* fp = fopen("pictures/problem.ppm", "rb");
+	FILE* fp = fopen("problem.ppm", "rb");
 	if (fp == NULL) {
 		//読み込みエラー
 		assert(0);
@@ -452,8 +452,8 @@ void Main() {
 				select_avg_y = 0;
 				select_avg_x = 0;
 				for (auto [y,x] : selects) {
-					select_avg_y += (double)y+0.5;
-					select_avg_x += (double)x+0.5;
+					select_avg_y += (double)y;
+					select_avg_x += (double)x;
 				}
 				select_avg_y /= (int)selects.size();
 				select_avg_x /= (int)selects.size();
@@ -470,6 +470,8 @@ void Main() {
 					draw_x = -ny;
 					draw_y = nx;
 				}
+				draw_x -= 0.5;
+				draw_y -= 0.5;
 				int ty = (cy + draw_y * PSIZE + PSIZE / 2 - ay) / PSIZE;
 				int tx = (cx + draw_x * PSIZE + PSIZE / 2 - ax) / PSIZE;
 				if (ans.board[ty][tx] != -1 && selects.count({ ty,tx }) == 0) {
@@ -493,6 +495,8 @@ void Main() {
 						draw_x = -ny;
 						draw_y = nx;
 					}
+					draw_x -= 0.5;
+					draw_y -= 0.5;
 					int ty = (cy + draw_y * PSIZE + PSIZE / 2 - ay) / PSIZE;
 					int tx = (cx + draw_x * PSIZE + PSIZE / 2 - ax) / PSIZE;
 					ans.board[ty][tx] = board_mp[{y, x}];
@@ -552,6 +556,7 @@ void Main() {
 			ay += ay / PSIZE;
 		}
 		shift = KeyLShift.pressed();
+		Rect(board_size_x/2*PSIZE+ax, board_size_y / 2 * PSIZE+ay, pic.div_x* PSIZE, pic.div_y*PSIZE).drawFrame(5, ColorF(1.0, 0, 0, 0.2));
 		for (int y = 1; y < board_size_y - 1; y++) {
 			for (int x = 1; x < board_size_x - 1; x++) {
 				if (ans.board[y][x] == -1) {
@@ -579,6 +584,8 @@ void Main() {
 					draw_x = -ny;
 					draw_y = nx;
 				}
+				draw_x -= 0.5;
+				draw_y -= 0.5;
 				pieces[ans.board[y][x]].tex.resized(PSIZE).rotated(90_deg * ((ans.direction[y][x] + select_dir)%4)).draw(Cursor::Pos().x + draw_x * PSIZE, Cursor::Pos().y + draw_y * PSIZE);
 			}
 		}
