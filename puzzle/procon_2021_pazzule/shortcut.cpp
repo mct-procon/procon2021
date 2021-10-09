@@ -13,7 +13,6 @@ extern vector<int> goal_place;
 extern Status answer;
 extern int h, w, sel_rate, swap_rate, sel_lim, search_dir;
 
-#define TIME_LIMIT 5
 
 namespace SCUT {
 	int next_eval_cost = 0;
@@ -28,6 +27,7 @@ namespace SCUT {
 	clock_t start;
 	int sel_resi;
   int maxlength = 5;
+  int TIME_LIMIT = 5;
 }
 using namespace SCUT;
 bool idastar_sc(int goal_eval_cost, Status& sta) {
@@ -184,7 +184,7 @@ void shortcut(Status sta, Status pre_answer) {
     //
 		begin_num = end_num;
 		mid_begin_sel = mid_sel;
-		//length = rand() % 10 + maxlength;	//‚·‚®Žû‘©‚µ‚È‚¢‚æ‚¤‚Éƒ‰ƒ“ƒ_ƒ€‚È’·‚³
+		length = rand() % 5 + maxlength;	//‚·‚®Žû‘©‚µ‚È‚¢‚æ‚¤‚Éƒ‰ƒ“ƒ_ƒ€‚È’·‚³
 		end_num += length;
 		if (end_num >= sta_array_size - 1) {
 			end_num = sta_array_size - 1;
@@ -293,23 +293,32 @@ void shortcut(Status sta, Status pre_answer) {
 
 
 void shortcut_solve(Status& sta) {
+  cout << "1Žü‚Ì§ŒÀŽžŠÔ(•b)" << endl;
+  cin >> TIME_LIMIT;
+
 	Status pre_answer = sta;
 	owa_solve(pre_answer);
+  status_show_cost(answer);
   //output_csv(sta, answer, "ow_solve.csv");
 	shortcut(sta, pre_answer);
 	assert(answer.sel_cnt <= sel_lim);
 	assert(answer.place == complete);
 	clock_t start = clock();
-	while ((clock() - start) / CLOCKS_PER_SEC < TIME_LIMIT * 5) {
+	while (true) {
 		pre_answer = answer;
     int pre_cost = pre_answer.total_cost;
     cout << maxlength << endl;
+    clock_t functime = clock();
 		shortcut(sta, pre_answer);
-    if (pre_cost <= answer.total_cost + answer.total_cost / 10000) {
+    if (pre_cost <= answer.total_cost + answer.total_cost / 1000) {
+      if ((clock() - functime) / CLOCKS_PER_SEC >= TIME_LIMIT)
+        maxlength = 0;
       maxlength+=5;
     }
 		assert(answer.sel_cnt <= sel_lim);
 		assert(answer.place == complete);
+
+    status_sub_for();
 	}
 	//output_csv(sta, answer, "ShortCut.csv");
 }

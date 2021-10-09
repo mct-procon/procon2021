@@ -143,10 +143,10 @@ namespace ow{
 	}
 
 }
-using namespace ow;
 
 // ‰E‰º‚Ì‚à‚Ì‚ğ‚Á‚ÄA¶ã‚©‚ç‡‚í‚¹‚Ä‚¢‚­
 void ow_solve(Status& status) {
+  using namespace ow;
   // ‰Šúó‘Ô‚¾‚©‚ç‰E‰º‚É‚ ‚é‚â‚Â‚ª•ª‚©‚é
   status_sellect(status, complete[h - 1][w - 1] % w, complete[h - 1][w - 1] / w);
   dontmove.resize(h);
