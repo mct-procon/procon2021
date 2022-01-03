@@ -6,10 +6,10 @@ s = f.read
 f.close
 
 # 入力ファイル
-f = File.open('puzzle\x64\Debug\input.txt', "w")
+f = File.open('puzzle\input.txt', "w")
 f.puts("8\n0\n0\n")
 f.print(s)
 f.close
 
 # 実行
-system('puzzle\x64\Debug\procon_2021_pazzule.exe < puzzle\x64\Debug\input.txt')
+system('puzzle\procon_2021_pazzule.exe < puzzle\input.txt')
